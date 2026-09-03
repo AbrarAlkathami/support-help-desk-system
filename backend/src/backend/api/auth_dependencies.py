@@ -44,3 +44,13 @@ def require_roles(*allowed_roles: UserRole) -> Callable:
         return current_user
 
     return check_role
+
+
+require_admin = require_roles(
+    UserRole.ADMIN,
+)
+
+require_moderator_or_admin = require_roles(
+    UserRole.MODERATOR,
+    UserRole.ADMIN,
+)
