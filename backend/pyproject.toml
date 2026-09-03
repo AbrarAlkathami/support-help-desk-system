@@ -12,7 +12,8 @@ dependencies = [
     "sqlalchemy[asyncio] (>=2.0.52,<3.0.0)",
     "pydantic-settings (>=2.15.0,<3.0.0)",
     "aiosqlite (>=0.22.1,<0.23.0)",
-    "greenlet (>=3.5.5,<4.0.0)"
+    "greenlet (>=3.5.5,<4.0.0)",
+    "alembic (>=1.19.1,<2.0.0)"
 ]
 
 [tool.poetry]
