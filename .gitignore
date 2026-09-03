@@ -5,3 +5,11 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Environment
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3

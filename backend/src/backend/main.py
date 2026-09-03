@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
+from backend.api.health import router as health_router
+
+
 app = FastAPI()
 
-
-@app.get("/")
-def root():
-    return {"message": "Support Helpdesk API"}
+app.include_router(health_router)
