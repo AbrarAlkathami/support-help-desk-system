@@ -15,9 +15,8 @@ async def health_check():
 
 
 @router.get("/db")
-async def database_health_check(
-    db: AsyncSession = Depends(get_db),
-):
+async def database_health_check( db: AsyncSession = Depends(get_db) ):
+    
     try:
         await db.execute(text("SELECT 1"))
 
