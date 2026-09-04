@@ -25,7 +25,7 @@ async def create_ticket(db: AsyncSession, data: TicketCreate, requester: User) -
 
     await db.commit()
 
-    return ticket
+    return await ticket_crud.get_with_relations(db, ticket.id)
 
 
 async def get_ticket(db: AsyncSession, ticket_id: UUID) -> Ticket | None:
@@ -87,11 +87,11 @@ async def update_ticket(
         if assignee.role != UserRole.MODERATOR:
             raise ValueError("Tickets can only be assigned to moderators")
 
-    ticket = await ticket_crud.update(db, ticket, update_data)
+    await ticket_crud.update(db, ticket, update_data)
 
     await db.commit()
 
-    return ticket
+    return await ticket_crud.get_with_relations(db, ticket_id)
 
 def can_access_ticket(ticket: Ticket, current_user: User) -> bool:
     if current_user.role in (UserRole.MODERATOR, UserRole.ADMIN):

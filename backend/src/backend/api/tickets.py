@@ -12,7 +12,6 @@ from backend.schemas.ticket import (
     TicketFilters , 
     TicketUpdate, 
     TicketDetailResponse, 
-    TicketListItemResponse
     )
 from backend.services.ticket import (
     can_access_ticket,
@@ -90,7 +89,7 @@ async def get_ticket_by_id(
 
     comments = await list_ticket_comments(db, ticket)
 
-    ticket_data = TicketListItemResponse.model_validate(ticket).model_dump()
+    ticket_data = TicketResponse.model_validate(ticket).model_dump()
 
     return TicketDetailResponse(
         **ticket_data,

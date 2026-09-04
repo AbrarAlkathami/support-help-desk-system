@@ -22,29 +22,23 @@ class TicketResponse(BaseModel):
     description: str
     status: TicketStatus
     priority: TicketPriority
-    category_id: UUID
-    requester_id: UUID
-    assignee_id: UUID | None
+    requester: UserSummary
+    assignee: UserSummary | None
+    category: CategoryResponse
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
 
 
-class TicketListItemResponse(TicketResponse):
-    requester: UserSummary
-    assignee: UserSummary | None
-    category: CategoryResponse
-
-
 class TicketListResponse(BaseModel):
-    items: list[TicketListItemResponse]
+    items: list[TicketResponse]
     total: int
     page: int
     page_size: int
 
 
-class TicketDetailResponse(TicketListItemResponse):
+class TicketDetailResponse(TicketResponse):
     comments: list[CommentDetailResponse]
 
 
