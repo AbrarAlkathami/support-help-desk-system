@@ -1,7 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-
-export async function apiClient<T> (
+export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<T> {
@@ -19,9 +18,13 @@ export async function apiClient<T> (
 
     throw new Error(
       error?.error?.message ||
-      error?.detail ||
-      "Something went wrong"
+        error?.detail ||
+        "Something went wrong",
     );
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json();
