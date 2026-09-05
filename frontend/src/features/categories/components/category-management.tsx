@@ -90,7 +90,7 @@ export function CategoryManagement() {
               <TableRow>
                 <TableHead>Category</TableHead>
 
-                <TableHead className="w-[120px] text-right">Tickets</TableHead>
+                <TableHead className="w-30 text-right">Tickets</TableHead>
               </TableRow>
             </TableHeader>
 

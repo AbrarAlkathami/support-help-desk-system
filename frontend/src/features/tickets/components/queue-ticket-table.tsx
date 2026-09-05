@@ -77,7 +77,7 @@ export function QueueTicketTable({
               <TableCell>
                 <TicketAssigneeBadge assignee={ticket.assignee} />
               </TableCell>
-              <TableCell className="min-w-[180px]">
+              <TableCell className="min-w-45">
                 <div className="space-y-1.5">
                   <p className="text-sm">
                     {new Date(ticket.createdAt).toLocaleString()}

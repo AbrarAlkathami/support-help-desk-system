@@ -110,11 +110,11 @@ export function AdminMetrics() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Skeleton className="h-[360px] rounded-xl" />
-          <Skeleton className="h-[360px] rounded-xl" />
+          <Skeleton className="h-90rounded-xl" />
+          <Skeleton className="h-90 rounded-xl" />
         </div>
 
-        <Skeleton className="h-[320px] rounded-xl" />
+        <Skeleton className="h-80 rounded-xl" />
       </div>
     );
   }
@@ -202,10 +202,7 @@ export function AdminMetrics() {
             </CardDescription>
           </CardHeader>
 
-          <ChartContainer
-            config={categoryChartConfig}
-            className="h-[280px] w-full"
-          >
+          <ChartContainer config={categoryChartConfig} className="h-70 w-full">
             <BarChart data={metrics.byCategory}>
               <XAxis
                 dataKey="category"

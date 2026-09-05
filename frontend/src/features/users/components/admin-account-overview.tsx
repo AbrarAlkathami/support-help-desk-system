@@ -19,7 +19,7 @@ export function AdminAccountOverview() {
   const { data: users = [], isLoading, isError, error } = useUsers();
 
   if (isLoading) {
-    return <Skeleton className="h-[320px] rounded-xl" />;
+    return <Skeleton className="h-80 rounded-xl" />;
   }
 
   if (isError) {
