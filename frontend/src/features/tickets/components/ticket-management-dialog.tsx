@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/message";
 
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
-
+import { UserIdentity } from "@/components/shared/user-identity";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
@@ -259,9 +259,9 @@ export function TicketManagementDialog({
               <div>
                 <p className="text-xs text-muted-foreground">Requester</p>
 
-                <p className="mt-1 text-sm font-medium">
-                  {ticket.requester.name}
-                </p>
+                <div className="mt-2">
+                  <UserIdentity name={ticket.requester.name} />
+                </div>
               </div>
 
               <div>
@@ -275,9 +275,15 @@ export function TicketManagementDialog({
               <div>
                 <p className="text-xs text-muted-foreground">Assigned to</p>
 
-                <p className="mt-1 text-sm font-medium">
-                  {ticket.assignee?.name ?? "Unassigned"}
-                </p>
+                <div className="mt-2">
+                  {ticket.assignee ? (
+                    <UserIdentity name={ticket.assignee.name} />
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      Unassigned
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div>

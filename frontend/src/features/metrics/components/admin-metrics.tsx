@@ -36,9 +36,8 @@ import { useTickets } from "@/features/tickets/hooks/use-tickets";
 
 import { SummaryCard } from "@/features/tickets/components/summary-card";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
-import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
 import { TicketSla } from "@/features/tickets/components/ticket-sla";
-
+import { UserIdentity } from "@/components/shared/user-identity";
 const statusChartConfig = {
   count: {
     label: "Tickets",
@@ -294,9 +293,7 @@ export function AdminMetrics() {
                       {ticket.subject}
                     </p>
 
-                    <p className="mt-1 truncate text-xs text-muted-foreground">
-                      {ticket.requester.name} · {ticket.category.name}
-                    </p>
+                    <UserIdentity name={ticket.requester.name} />
                   </div>
 
                   {/* Status / SLA */}

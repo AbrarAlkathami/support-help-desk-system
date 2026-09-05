@@ -1,25 +1,16 @@
 import { CircleDashed } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
 import { Badge } from "@/components/ui/badge";
+import { UserIdentity } from "@/components/shared/user-identity";
 
 interface TicketAssigneeBadgeProps {
   assignee: {
     id: string;
     name: string;
+    email?: string | null;
   } | null;
 
   currentUserId?: string;
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 }
 
 export function TicketAssigneeBadge({
@@ -42,21 +33,13 @@ export function TicketAssigneeBadge({
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar className="size-7">
-        <AvatarFallback className="text-xs">
-          {getInitials(assignee.name)}
-        </AvatarFallback>
-      </Avatar>
+      <UserIdentity name={assignee.name} email={assignee.email} size="sm" />
 
-      <div className="flex items-center gap-1.5">
-        <span className="text-sm font-medium">{assignee.name}</span>
-
-        {isMe && (
-          <Badge variant="secondary" className="text-xs">
-            You
-          </Badge>
-        )}
-      </div>
+      {isMe && (
+        <Badge variant="secondary" className="text-xs">
+          You
+        </Badge>
+      )}
     </div>
   );
 }

@@ -12,7 +12,7 @@ import { TicketAssigneeBadge } from "@/features/tickets/components/ticket-assign
 import { TicketRowActions } from "@/features/tickets/components/ticket-row-actions";
 import type { Ticket } from "@/features/tickets/types/ticket";
 import { TicketSla } from "./ticket-sla";
-
+import { UserIdentity } from "@/components/shared/user-identity";
 interface QueueTicketTableProps {
   tickets: Ticket[];
   onTicketClick: (ticketId: string) => void;
@@ -62,7 +62,9 @@ export function QueueTicketTable({
             >
               <TableCell className="font-medium">{ticket.subject}</TableCell>
 
-              <TableCell>{ticket.requester.name}</TableCell>
+              <TableCell>
+                <UserIdentity name={ticket.requester.name} />
+              </TableCell>
 
               <TableCell>
                 <TicketStatusBadge status={ticket.status} />
