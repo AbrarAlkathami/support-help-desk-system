@@ -1,3 +1,4 @@
+import imp
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -29,7 +30,7 @@ from backend.api.auth_dependencies import (
 from backend.services.comment import list_ticket_comments, create_comment
 from backend.schemas.comment import CommentCreate, CommentResponse
 from backend.schemas.queue_summary import QueueSummaryResponse
-from backend.services.queue_summary import get_queue_summary
+from backend.services.queue_summary import get_queue_summary, build_ticket_response
 
 router = APIRouter(
     prefix="/tickets",
@@ -51,7 +52,7 @@ async def create_new_ticket(
             detail="Category not found",
         )
 
-    return ticket
+    return build_ticket_response(ticket)
 
 
 @router.get("", response_model=TicketListResponse)
@@ -63,7 +64,10 @@ async def get_tickets(
     tickets, total = await list_tickets(db, current_user, filters)
 
     return {
-        "items": tickets,
+        "items": [
+            build_ticket_response(ticket)
+            for ticket in tickets
+        ],
         "total": total,
         "page": filters.page,
         "page_size": filters.page_size,
@@ -104,9 +108,14 @@ async def get_ticket_by_id(
             detail="You do not have permission to view this ticket",
         )
 
-    comments = await list_ticket_comments(db, ticket)
+    comments = await list_ticket_comments(
+        db,
+        ticket,
+    )
 
-    ticket_data = TicketResponse.model_validate(ticket).model_dump()
+    ticket_data = build_ticket_response(
+        ticket
+    ).model_dump()
 
     return TicketDetailResponse(
         **ticket_data,
@@ -169,8 +178,7 @@ async def update_ticket_by_id(
             detail="Ticket not found",
         )
 
-    return ticket
-
+    return build_ticket_response(ticket)
 
 @router.delete(
     "/{ticket_id}",

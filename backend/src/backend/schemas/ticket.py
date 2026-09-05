@@ -27,6 +27,8 @@ class TicketResponse(BaseModel):
     category: CategoryResponse
     created_at: datetime
     updated_at: datetime
+    sla_due_at: datetime
+    is_overdue: bool
 
     model_config = ConfigDict(from_attributes=True)
 
