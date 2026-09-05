@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { ticketStatusOptions } from "../constants/ticket-filter-options";
+import { ticketStatusOptions } from "@/features/tickets/constants/ticket-filter-options";
 
 interface UserTicketFiltersProps {
   search: string;

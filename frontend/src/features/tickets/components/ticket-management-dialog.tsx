@@ -35,23 +35,26 @@ import { toast } from "@/components/ui/toast";
 
 import { ApiError } from "@/components/shared/api-error";
 
-import { useTicket } from "../hooks/use-ticket";
-import { useAddComment } from "../hooks/use-add-comment";
-import { useUpdateTicket } from "../hooks/use-update-ticket";
+import { useTicket } from "@/features/tickets/hooks/use-ticket";
+import { useAddComment } from "@/features/tickets/hooks/use-add-comment";
+import { useUpdateTicket } from "@/features/tickets/hooks/use-update-ticket";
 
 import { useModerators } from "@/features/users/hooks/use-moderators";
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 
-import { TicketStatusBadge } from "./ticket-status-badge";
-import { TicketPriorityBadge } from "./ticket-priority-badge";
-import { TicketStatusProgress } from "./ticket-status-progress";
+import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
+import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
+import { TicketStatusProgress } from "@/features/tickets/components/ticket-status-progress";
 
 import {
   ticketPriorityOptions,
   ticketStatusOptions,
-} from "../constants/ticket-filter-options";
+} from "@/features/tickets/constants/ticket-filter-options";
 
-import type { TicketPriority, TicketStatus } from "../types/ticket";
+import type {
+  TicketPriority,
+  TicketStatus,
+} from "@/features/tickets/types/ticket";
 
 interface TicketManagementDialogProps {
   ticketId: string | null;

@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/api-client";
-import type { Ticket, TicketsResponse, TicketStatus , TicketPriority, TicketsQueryParams } from "../types/ticket";
+import type { Ticket, TicketsResponse, TicketStatus , TicketPriority, TicketsQueryParams } from "@/features/tickets/types/ticket";
 
 type TicketApiItem = {
     id: string;

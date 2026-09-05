@@ -22,14 +22,18 @@ import {
 import { ApiError } from "@/components/shared/api-error";
 
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
-import { useUpdateTicket } from "../hooks/use-update-ticket";
+import { useUpdateTicket } from "@/features/tickets/hooks/use-update-ticket";
 
 import {
   ticketPriorityOptions,
   ticketStatusOptions,
-} from "../constants/ticket-filter-options";
+} from "@/features/tickets/constants/ticket-filter-options";
 
-import type { Ticket, TicketPriority, TicketStatus } from "../types/ticket";
+import type {
+  Ticket,
+  TicketPriority,
+  TicketStatus,
+} from "@/features/tickets/types/ticket";
 
 interface TicketRowActionsProps {
   ticket: Ticket;

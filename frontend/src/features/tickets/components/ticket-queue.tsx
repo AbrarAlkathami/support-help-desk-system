@@ -2,10 +2,10 @@
 import { useState } from "react";
 
 import { AppPagination } from "@/components/shared/app-pagination";
-import { useTickets } from "../hooks/use-tickets";
-import { useTicketQueueParams } from "../hooks/use-ticket-queue-params";
+import { useTickets } from "@/features/tickets/hooks/use-tickets";
+import { useTicketQueueParams } from "@/features/tickets/hooks/use-ticket-queue-params";
 import { Spinner } from "@/components/ui/spinner";
-import { QueueTicketTable } from "./queue-ticket-table";
+import { QueueTicketTable } from "@/features/tickets/components/queue-ticket-table";
 import { TicketQueueFilters } from "@/features/tickets/components/ticket-queue-filters";
 import { useCategories } from "@/features/categories/hooks/use-categories";
 import { TicketEmptyState } from "@/components/shared/ticket-empty-state";

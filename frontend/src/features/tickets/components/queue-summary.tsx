@@ -2,8 +2,8 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { useQueueSummary } from "../hooks/use-queue-summary";
-import { SummaryCard } from "./summary-card";
+import { useQueueSummary } from "@/features/tickets/hooks/use-queue-summary";
+import { SummaryCard } from "@/features/tickets/components/summary-card";
 import { ApiError } from "@/components/shared/api-error";
 export function QueueSummary() {
   const { data, isLoading, isError, error } = useQueueSummary();

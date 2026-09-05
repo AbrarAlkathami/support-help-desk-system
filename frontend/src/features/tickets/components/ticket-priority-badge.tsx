@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { TicketPriority } from "../types/ticket";
+import type { TicketPriority } from "@/features/tickets/types/ticket";
 
 type TicketPriorityBadgeProps = {
   priority: TicketPriority;

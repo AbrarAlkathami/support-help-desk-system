@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/api-client";
-import type { LoginFormValues } from "../schemas/login-schema";
+import type { LoginFormValues } from "@/features/auth/schemas/login-schema";
 import type {User} from "@/features/users/types/user";
 
 export async function login(data: LoginFormValues) {

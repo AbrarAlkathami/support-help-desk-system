@@ -17,7 +17,7 @@ import type {
   TicketPriority,
   TicketSortBy,
   TicketStatus,
-} from "../types/ticket";
+} from "@/features/tickets/types/ticket";
 
 export function useTicketQueueParams() {
   const router = useRouter();

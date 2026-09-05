@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { TicketStatus } from "../types/ticket";
+import type { TicketStatus } from "@/features/tickets/types/ticket";
 
 type TicketStatusBadgeProps = {
   status: TicketStatus;

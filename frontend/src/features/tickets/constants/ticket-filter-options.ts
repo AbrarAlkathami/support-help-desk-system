@@ -1,7 +1,7 @@
 import type {
     TicketPriority,
     TicketStatus,
-  } from "../types/ticket";
+  } from "@/features/tickets/types/ticket";
   
   export const ticketStatusOptions: {
     label: string;

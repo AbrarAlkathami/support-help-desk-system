@@ -24,14 +24,14 @@ import {
   ticketPriorityOptions,
   ticketSortOptions,
   ticketStatusOptions,
-} from "../constants/ticket-filter-options";
+} from "@/features/tickets/constants/ticket-filter-options";
 
 import type {
   SortOrder,
   TicketPriority,
   TicketSortBy,
   TicketStatus,
-} from "../types/ticket";
+} from "@/features/tickets/types/ticket";
 
 interface TicketQueueFiltersProps {
   search: string;
