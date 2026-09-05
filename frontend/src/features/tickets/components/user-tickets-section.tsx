@@ -1,13 +1,4 @@
 "use client";
-import { TicketIcon } from "lucide-react";
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty";
-
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { UserTicketTable } from "@/features/tickets/components/user-ticket-table";
@@ -15,26 +6,27 @@ import { useTickets } from "@/features/tickets/hooks/use-tickets";
 import type { TicketStatus } from "@/features/tickets/types/ticket";
 import { UserTicketFilters } from "@/features/tickets/components/user-ticket-filters";
 import { TicketDetailsDialog } from "@/features/tickets/components/ticket-details-dialog";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { AppPagination } from "@/components/shared/app-pagination";
+import { TicketEmptyState } from "@/components/shared/ticket-empty-state";
+import { TableSkeleton } from "@/components/shared/table-skeleton";
+import { Spinner } from "@/components/ui/spinner";
+import { ApiError } from "@/components/shared/api-error";
 
 function UserTicketsSection() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page") ?? "1");
-  const pageSize = 10;
+
+  const pageSizeParam = Number(searchParams.get("pageSize"));
+
+  const pageSize = [10, 20, 50].includes(pageSizeParam) ? pageSizeParam : 10;
+
   const search = searchParams.get("search") ?? "";
   const statusParam = searchParams.get("status");
   const status = statusParam ? (statusParam as TicketStatus) : undefined;
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
-  const { data, isLoading, isFetching, isError, error } = useTickets({
+  const { data, isLoading, isError, isFetching, error } = useTickets({
     page,
     pageSize,
     search: search || undefined,
@@ -78,11 +70,17 @@ function UserTicketsSection() {
   }, [searchInput, search, updateParams]);
 
   if (isLoading) {
-    return <p>Loading tickets...</p>;
+    return (
+      <div className="space-y-4">
+        <TableSkeleton columns={5} />
+      </div>
+    );
   }
 
   if (isError) {
-    return <p className="text-sm text-destructive">{error.message}</p>;
+    return (
+      <ApiError variant="alert" title="Could not load tickets" error={error} />
+    );
   }
 
   return (
@@ -98,24 +96,18 @@ function UserTicketsSection() {
           });
         }}
       />
+
+      {isFetching && !isLoading && (
+        <div className="flex justify-end">
+          <Spinner className="size-4" />
+        </div>
+      )}
+
       {data?.total === 0 ? (
-        <Empty className="mt-4 border bg-background">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <TicketIcon />
-            </EmptyMedia>
-
-            <EmptyTitle>
-              {hasActiveFilters ? "No tickets found" : "No tickets yet"}
-            </EmptyTitle>
-
-            <EmptyDescription>
-              {hasActiveFilters
-                ? "No tickets match your current search or filters."
-                : "Create your first support ticket to get started."}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <TicketEmptyState
+          hasActiveFilters={hasActiveFilters}
+          emptyDescription="Create your first support ticket to get started."
+        />
       ) : (
         <div className="mt-6">
           <UserTicketTable
@@ -124,72 +116,23 @@ function UserTicketsSection() {
           />
         </div>
       )}
-      {totalPages > 1 && (
-        <Pagination className="mt-4 justify-end">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault();
+      <AppPagination
+        page={page}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        onPageChange={(newPage) =>
+          updateParams({
+            page: String(newPage),
+          })
+        }
+        onPageSizeChange={(newPageSize) =>
+          updateParams({
+            pageSize: String(newPageSize),
+            page: "1",
+          })
+        }
+      />
 
-                  if (page > 1) {
-                    updateParams({
-                      page: String(page - 1),
-                    });
-                  }
-                }}
-                aria-disabled={page === 1}
-                className={
-                  page === 1 ? "pointer-events-none opacity-50" : undefined
-                }
-              />
-            </PaginationItem>
-
-            {Array.from({ length: totalPages }, (_, index) => {
-              const pageNumber = index + 1;
-
-              return (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink
-                    href="#"
-                    isActive={page === pageNumber}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      updateParams({
-                        page: String(pageNumber),
-                      });
-                    }}
-                  >
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              );
-            })}
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault();
-
-                  if (page < totalPages) {
-                    updateParams({
-                      page: String(page + 1),
-                    });
-                  }
-                }}
-                aria-disabled={page >= totalPages}
-                className={
-                  page >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : undefined
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
       <TicketDetailsDialog
         ticketId={selectedTicketId}
         onOpenChange={(open) => {
