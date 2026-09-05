@@ -13,6 +13,7 @@ from backend.api.health import router as health_router
 from backend.api.tickets import router as tickets_router
 from backend.api.categories import router as categories_router
 from backend.api.users import router as users_router
+from backend.api.metrics import router as metrics_router
 
 app = FastAPI()
 
@@ -29,6 +30,7 @@ app.include_router(auth_router)
 app.include_router(tickets_router)
 app.include_router(categories_router)
 app.include_router(users_router)
+app.include_router(metrics_router)
 
 app.add_exception_handler(
     StarletteHTTPException,
