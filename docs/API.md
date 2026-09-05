@@ -232,6 +232,32 @@ GET /tickets?page=1&page_size=20&status=open&status=in_progress&priority=high&pr
 }
 ```
 
+## GET `/tickets/queue-summary`
+
+Returns operational summary counts for the moderator/admin ticket queue.
+
+**Access:** Moderator, Admin
+
+The summary is calculated server-side across the full ticket dataset.
+
+A ticket is considered **overdue** when it is still `open` or `in_progress` and has exceeded the resolution SLA for its priority:
+
+| Priority | SLA      |
+| -------- | -------- |
+| `urgent` | 4 hours  |
+| `high`   | 8 hours  |
+| `medium` | 24 hours |
+| `low`    | 48 hours |
+
+### Response — `200`
+
+````json
+{
+  "unassigned": 4,
+  "assigned_to_me": 2,
+  "overdue": 3
+}
+
 ## GET `/tickets/{ticket_id}`
 
 Returns ticket details and its flat comment history.
@@ -279,7 +305,7 @@ Returns ticket details and its flat comment history.
     }
   ]
 }
-```
+````
 
 ### Errors
 
