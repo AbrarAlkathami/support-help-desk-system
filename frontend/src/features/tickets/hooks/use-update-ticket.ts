@@ -5,17 +5,17 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
-import { addComment } from "@/features/tickets/api/add-comment";
+import {
+  updateTicket,
+  type UpdateTicketData,
+} from "@/features/tickets/api/update-ticket";
 
-export function useAddComment(ticketId: string) {
+export function useUpdateTicket(ticketId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (body: string) =>
-      addComment({
-        ticketId,
-        body,
-      }),
+    mutationFn: (data: UpdateTicketData) =>
+      updateTicket(ticketId, data),
 
     onSuccess: () => {
       queryClient.invalidateQueries({
