@@ -58,7 +58,7 @@ export function AppPagination({
             onPageSizeChange(Number(value));
           }}
         >
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-150px">
             <SelectValue placeholder="Rows per page" />
           </SelectTrigger>
 
