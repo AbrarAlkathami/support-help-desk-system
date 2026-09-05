@@ -12,6 +12,8 @@ type TicketDetailsApiResponse = {
   description: string;
   status: TicketStatus;
   priority: TicketPriority;
+  sla_due_at: string;
+    is_overdue: boolean;
 
   requester: {
     id: string;
@@ -63,6 +65,8 @@ export async function getTicket(
     category: response.category,
     createdAt: response.created_at,
     updatedAt: response.updated_at,
+    slaDueAt: response.sla_due_at,
+    isOverdue: response.is_overdue,
 
     comments: response.comments.map((comment) => ({
       id: comment.id,

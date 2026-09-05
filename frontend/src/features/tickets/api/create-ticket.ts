@@ -34,6 +34,8 @@ type CreateTicketApiResponse = {
 
   created_at: string;
   updated_at: string;
+  sla_due_at: string;
+is_overdue: boolean;
 };
 
 export async function createTicket(
@@ -60,5 +62,7 @@ export async function createTicket(
     category: response.category,
     createdAt: response.created_at,
     updatedAt: response.updated_at,
+    slaDueAt: response.sla_due_at,
+    isOverdue: response.is_overdue,
   };
 }

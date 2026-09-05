@@ -6,12 +6,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
 import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
 import { TicketAssigneeBadge } from "@/features/tickets/components/ticket-assignee-badge";
 import { TicketRowActions } from "@/features/tickets/components/ticket-row-actions";
 import type { Ticket } from "@/features/tickets/types/ticket";
+import { TicketSla } from "./ticket-sla";
 
 interface QueueTicketTableProps {
   tickets: Ticket[];
@@ -34,6 +34,7 @@ export function QueueTicketTable({
             <TableHead>Category</TableHead>
             <TableHead>Assignee</TableHead>
             <TableHead>Created</TableHead>
+            <TableHead>SLA</TableHead>
             <TableHead className="w-60px">
               <span className="sr-only">Actions</span>
             </TableHead>
@@ -76,8 +77,19 @@ export function QueueTicketTable({
               <TableCell>
                 <TicketAssigneeBadge assignee={ticket.assignee} />
               </TableCell>
+              <TableCell className="min-w-[180px]">
+                <div className="space-y-1.5">
+                  <p className="text-sm">
+                    {new Date(ticket.createdAt).toLocaleString()}
+                  </p>
+                </div>
+              </TableCell>
               <TableCell>
-                {new Date(ticket.createdAt).toLocaleDateString()}
+                <TicketSla
+                  dueAt={ticket.slaDueAt}
+                  isOverdue={ticket.isOverdue}
+                  status={ticket.status}
+                />
               </TableCell>
               <TableCell>
                 <TicketRowActions

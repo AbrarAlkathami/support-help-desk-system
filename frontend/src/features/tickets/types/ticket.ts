@@ -34,6 +34,9 @@ export type TicketPriority =
   
     createdAt: string;
     updatedAt: string;
+  
+    slaDueAt: string;
+    isOverdue: boolean;
   };
 
   export type TicketsResponse = {

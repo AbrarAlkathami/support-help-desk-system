@@ -7,7 +7,8 @@ type TicketApiItem = {
     description: string;
     status: TicketStatus;
     priority: TicketPriority;
-  
+    sla_due_at: string;
+    is_overdue: boolean;
     requester: {
       id: string;
       name: string;
@@ -94,6 +95,8 @@ type TicketApiItem = {
         category: ticket.category,
         createdAt: ticket.created_at,
         updatedAt: ticket.updated_at,
+        slaDueAt: ticket.sla_due_at,
+        isOverdue: ticket.is_overdue,
       })),
       total: response.total,
       page: response.page,
