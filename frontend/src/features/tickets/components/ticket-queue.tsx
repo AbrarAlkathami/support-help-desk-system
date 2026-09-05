@@ -1,17 +1,22 @@
 "use client";
+
 import { useState } from "react";
 
 import { AppPagination } from "@/components/shared/app-pagination";
-import { useTickets } from "@/features/tickets/hooks/use-tickets";
-import { useTicketQueueParams } from "@/features/tickets/hooks/use-ticket-queue-params";
-import { Spinner } from "@/components/ui/spinner";
-import { QueueTicketTable } from "@/features/tickets/components/queue-ticket-table";
-import { TicketQueueFilters } from "@/features/tickets/components/ticket-queue-filters";
-import { useCategories } from "@/features/categories/hooks/use-categories";
 import { TicketEmptyState } from "@/components/shared/ticket-empty-state";
 import { TableSkeleton } from "@/components/shared/table-skeleton";
 import { ApiError } from "@/components/shared/api-error";
+
+import { Spinner } from "@/components/ui/spinner";
+
+import { useTickets } from "@/features/tickets/hooks/use-tickets";
+import { useTicketQueueParams } from "@/features/tickets/hooks/use-ticket-queue-params";
+
+import { QueueTicketTable } from "@/features/tickets/components/queue-ticket-table";
+import { TicketQueueFilters } from "@/features/tickets/components/ticket-queue-filters";
 import { TicketManagementDialog } from "@/features/tickets/components/ticket-management-dialog";
+
+import { useCategories } from "@/features/categories/hooks/use-categories";
 import { useModerators } from "@/features/users/hooks/use-moderators";
 
 export function TicketQueue() {
@@ -31,11 +36,18 @@ export function TicketQueue() {
     togglePriority,
     updateParams,
   } = useTicketQueueParams();
+
   const {
     data: categories = [],
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
   } = useCategories();
+
+  const {
+    data: moderators = [],
+    isLoading: isModeratorsLoading,
+    isError: isModeratorsError,
+  } = useModerators();
 
   const { data, isLoading, isError, isFetching, error } = useTickets({
     page,
@@ -48,12 +60,34 @@ export function TicketQueue() {
     sortBy,
     sortOrder,
   });
+
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
-  const {
-    data: moderators = [],
-    isLoading: isModeratorsLoading,
-    isError: isModeratorsError,
-  } = useModerators();
+
+  const tickets = data?.items ?? [];
+
+  const totalPages = Math.ceil((data?.total ?? 0) / pageSize);
+
+  const hasActiveFilters = Boolean(
+    search ||
+    status.length > 0 ||
+    priority.length > 0 ||
+    categoryId ||
+    assignee,
+  );
+
+  const handleClearFilters = () => {
+    setSearchValue("");
+
+    updateParams({
+      search: null,
+      status: null,
+      priority: null,
+      category: null,
+      assignee: null,
+      page: "1",
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -68,15 +102,6 @@ export function TicketQueue() {
     );
   }
 
-  const tickets = data?.items ?? [];
-  const totalPages = Math.ceil((data?.total ?? 0) / pageSize);
-  const hasActiveFilters = Boolean(
-    search ||
-    status.length > 0 ||
-    priority.length > 0 ||
-    categoryId ||
-    assignee,
-  );
   return (
     <div className="space-y-4">
       <TicketQueueFilters
@@ -115,6 +140,7 @@ export function TicketQueue() {
             page: "1",
           })
         }
+        onClearFilters={handleClearFilters}
       />
 
       {isFetching && !isLoading && (
@@ -151,6 +177,7 @@ export function TicketQueue() {
           })
         }
       />
+
       <TicketManagementDialog
         ticketId={selectedTicketId}
         onOpenChange={(open) => {

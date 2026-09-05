@@ -1,5 +1,10 @@
+"use client";
+
+import { X } from "lucide-react";
+
 import type { TicketStatus } from "@/features/tickets/types/ticket";
 
+import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/shared/search-input";
 
 import {
@@ -18,6 +23,7 @@ interface UserTicketFiltersProps {
 
   onSearchChange: (value: string) => void;
   onStatusChange: (value?: TicketStatus) => void;
+  onClearFilters: () => void;
 }
 
 const userStatusOptions = [
@@ -33,14 +39,17 @@ export function UserTicketFilters({
   status,
   onSearchChange,
   onStatusChange,
+  onClearFilters,
 }: UserTicketFiltersProps) {
+  const hasActiveFilters = search.trim().length > 0 || Boolean(status);
+
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div className="flex flex-wrap items-center gap-2">
       <SearchInput
         value={search}
         onChange={onSearchChange}
         placeholder="Search tickets..."
-        className="w-full lg:max-w-sm"
+        className="w-full sm:w-[280px] lg:w-[320px]"
       />
 
       <Select
@@ -52,7 +61,7 @@ export function UserTicketFilters({
           onStatusChange(value === "all" ? undefined : (value as TicketStatus));
         }}
       >
-        <SelectTrigger className="w-170px">
+        <SelectTrigger className="h-9 w-[160px] bg-background shadow-none">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
 
@@ -64,6 +73,17 @@ export function UserTicketFilters({
           ))}
         </SelectContent>
       </Select>
+
+      {hasActiveFilters && (
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-9 gap-1.5 px-2 text-muted-foreground"
+          onClick={onClearFilters}
+        >
+          <X className="size-4" />
+        </Button>
+      )}
     </div>
   );
 }

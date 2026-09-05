@@ -1,40 +1,54 @@
 "use client";
+
 import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import { UserTicketTable } from "@/features/tickets/components/user-ticket-table";
-import { useTickets } from "@/features/tickets/hooks/use-tickets";
-import type { TicketStatus } from "@/features/tickets/types/ticket";
 import { UserTicketFilters } from "@/features/tickets/components/user-ticket-filters";
 import { TicketDetailsDialog } from "@/features/tickets/components/ticket-details-dialog";
+
+import { useTickets } from "@/features/tickets/hooks/use-tickets";
+
+import type { TicketStatus } from "@/features/tickets/types/ticket";
+
 import { AppPagination } from "@/components/shared/app-pagination";
 import { TicketEmptyState } from "@/components/shared/ticket-empty-state";
 import { TableSkeleton } from "@/components/shared/table-skeleton";
-import { Spinner } from "@/components/ui/spinner";
 import { ApiError } from "@/components/shared/api-error";
+
+import { Spinner } from "@/components/ui/spinner";
 
 function UserTicketsSection() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
   const page = Number(searchParams.get("page") ?? "1");
 
   const pageSizeParam = Number(searchParams.get("pageSize"));
-
   const pageSize = [10, 20, 50].includes(pageSizeParam) ? pageSizeParam : 10;
 
   const search = searchParams.get("search") ?? "";
+
   const statusParam = searchParams.get("status");
+
   const status = statusParam ? (statusParam as TicketStatus) : undefined;
+
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+
+  const [searchInput, setSearchInput] = useState(search);
+
   const { data, isLoading, isError, isFetching, error } = useTickets({
     page,
     pageSize,
     search: search || undefined,
     status: status ? [status] : undefined,
   });
+
   const totalPages = data ? Math.ceil(data.total / data.pageSize) : 0;
-  const [searchInput, setSearchInput] = useState(search);
+
   const hasActiveFilters = Boolean(search || status);
+
   const updateParams = useCallback(
     (updates: Record<string, string | undefined>) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -47,10 +61,30 @@ function UserTicketsSection() {
         }
       });
 
-      router.replace(`${pathname}?${params.toString()}`);
+      const query = params.toString();
+
+      router.replace(query ? `${pathname}?${query}` : pathname);
     },
     [pathname, router, searchParams],
   );
+
+  const handleClearFilters = () => {
+    setSearchInput("");
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.delete("search");
+    params.delete("status");
+    params.set("page", "1");
+
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  };
+
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -95,6 +129,7 @@ function UserTicketsSection() {
             page: "1",
           });
         }}
+        onClearFilters={handleClearFilters}
       />
 
       {isFetching && !isLoading && (
@@ -116,6 +151,7 @@ function UserTicketsSection() {
           />
         </div>
       )}
+
       <AppPagination
         page={page}
         totalPages={totalPages}

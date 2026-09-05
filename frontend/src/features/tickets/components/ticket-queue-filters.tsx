@@ -1,5 +1,7 @@
 "use client";
 
+import { X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 import {
@@ -35,9 +37,11 @@ import type {
 
 interface TicketQueueFiltersProps {
   search: string;
+
   onSearchChange: (value: string) => void;
 
   status: TicketStatus[];
+
   priority: TicketPriority[];
 
   categoryId?: string;
@@ -48,6 +52,7 @@ interface TicketQueueFiltersProps {
   }[];
 
   isCategoriesLoading: boolean;
+
   isCategoriesError: boolean;
 
   moderators: {
@@ -56,19 +61,26 @@ interface TicketQueueFiltersProps {
   }[];
 
   isModeratorsLoading: boolean;
+
   isModeratorsError: boolean;
 
   assignee?: string;
 
   sortBy: TicketSortBy;
+
   sortOrder: SortOrder;
 
   onStatusToggle: (value: TicketStatus) => void;
+
   onPriorityToggle: (value: TicketPriority) => void;
+
   onCategoryChange: (value: string | null) => void;
+
   onAssigneeChange: (value: string | null) => void;
 
   onSortChange: (sortBy: TicketSortBy, sortOrder: SortOrder) => void;
+
+  onClearFilters: () => void;
 }
 
 export function TicketQueueFilters({
@@ -91,6 +103,7 @@ export function TicketQueueFilters({
   onCategoryChange,
   onAssigneeChange,
   onSortChange,
+  onClearFilters,
 }: TicketQueueFiltersProps) {
   const categoryOptions = [
     {
@@ -111,23 +124,35 @@ export function TicketQueueFilters({
     })),
   ];
 
+  const hasActiveFilters =
+    search.trim().length > 0 ||
+    status.length > 0 ||
+    priority.length > 0 ||
+    Boolean(categoryId) ||
+    Boolean(assignee);
+
   return (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+    <div className="flex flex-wrap items-center gap-2">
       <SearchInput
         value={search}
         onChange={onSearchChange}
         placeholder="Search tickets..."
-        className="w-full lg:max-w-sm"
+        className="w-full sm:w-[280px] lg:w-[320px]"
       />
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button variant="outline" className="justify-between" />}
+          render={
+            <Button
+              variant="outline"
+              className="h-9 justify-between bg-background shadow-none"
+            />
+          }
         >
           {status.length ? `Status (${status.length})` : "Status"}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className="w-48">
           {ticketStatusOptions.map((option) => (
             <DropdownMenuCheckboxItem
               key={option.value}
@@ -142,12 +167,17 @@ export function TicketQueueFilters({
 
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button variant="outline" className="justify-between" />}
+          render={
+            <Button
+              variant="outline"
+              className="h-9 justify-between bg-background shadow-none"
+            />
+          }
         >
           {priority.length ? `Priority (${priority.length})` : "Priority"}
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="start">
+        <DropdownMenuContent align="start" className="w-48">
           {ticketPriorityOptions.map((option) => (
             <DropdownMenuCheckboxItem
               key={option.value}
@@ -160,8 +190,6 @@ export function TicketQueueFilters({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Category */}
-
       <Select
         items={categoryOptions}
         value={categoryId ?? "all"}
@@ -172,7 +200,7 @@ export function TicketQueueFilters({
           onCategoryChange(value === "all" ? null : value);
         }}
       >
-        <SelectTrigger className="w-180px">
+        <SelectTrigger className="h-9 w-[180px] bg-background shadow-none">
           <SelectValue
             placeholder={
               isCategoriesError ? "Categories unavailable" : "Category"
@@ -199,7 +227,7 @@ export function TicketQueueFilters({
           onAssigneeChange(value === "all" ? null : value);
         }}
       >
-        <SelectTrigger className="w-180px">
+        <SelectTrigger className="h-9 w-[180px] bg-background shadow-none">
           <SelectValue
             placeholder={
               isModeratorsError ? "Assignees unavailable" : "Assignee"
@@ -232,7 +260,7 @@ export function TicketQueueFilters({
           }
         }}
       >
-        <SelectTrigger className="w-190px">
+        <SelectTrigger className="h-9 w-[190px] bg-background shadow-none">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
 
@@ -244,6 +272,20 @@ export function TicketQueueFilters({
           ))}
         </SelectContent>
       </Select>
+
+      {hasActiveFilters && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="size-9 text-muted-foreground"
+          onClick={onClearFilters}
+          aria-label="Clear filters"
+          title="Clear filters"
+        >
+          <X className="size-4" />
+        </Button>
+      )}
     </div>
   );
 }
