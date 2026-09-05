@@ -28,6 +28,8 @@ from backend.api.auth_dependencies import (
 )
 from backend.services.comment import list_ticket_comments, create_comment
 from backend.schemas.comment import CommentCreate, CommentResponse
+from backend.schemas.queue_summary import QueueSummaryResponse
+from backend.services.queue_summary import get_queue_summary
 
 router = APIRouter(
     prefix="/tickets",
@@ -66,6 +68,21 @@ async def get_tickets(
         "page": filters.page,
         "page_size": filters.page_size,
     }
+
+
+@router.get(
+    "/queue-summary",
+    response_model=QueueSummaryResponse,
+)
+async def queue_summary(
+    current_user: User = Depends(require_moderator_or_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    return await get_queue_summary(
+        db=db,
+        current_user_id=current_user.id,
+    )
+
 
 @router.get("/{ticket_id}", response_model=TicketDetailResponse)
 async def get_ticket_by_id(

@@ -1,12 +1,19 @@
 from uuid import UUID
+from datetime import datetime, timedelta
 
-from sqlalchemy import asc, case, desc, func, or_, select
+from sqlalchemy import asc, case, desc, func, and_, or_, select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.common.enums import TicketPriority, TicketStatus
 from backend.crud.base import CRUDBase
 from backend.models import Category, Ticket
+
+
+ACTIVE_STATUSES = [
+    TicketStatus.OPEN,
+    TicketStatus.IN_PROGRESS,
+]
 
 class CRUDTicket(CRUDBase[Ticket]):
     async def get_page(
@@ -125,5 +132,83 @@ class CRUDTicket(CRUDBase[Ticket]):
         )
 
         return result.all()
+
+    async def get_queue_summary_counts(
+        self,
+        db: AsyncSession,
+        current_user_id: UUID,
+        now: datetime,
+        sla_hours: dict[TicketPriority, int],
+    ):
+        overdue_condition = and_(
+            self.model.status.in_(ACTIVE_STATUSES),
+            or_(
+                and_(
+                    self.model.priority == TicketPriority.URGENT,
+                    self.model.created_at
+                    < now - timedelta(
+                        hours=sla_hours[TicketPriority.URGENT]
+                    ),
+                ),
+                and_(
+                    self.model.priority == TicketPriority.HIGH,
+                    self.model.created_at
+                    < now - timedelta(
+                        hours=sla_hours[TicketPriority.HIGH]
+                    ),
+                ),
+                and_(
+                    self.model.priority == TicketPriority.MEDIUM,
+                    self.model.created_at
+                    < now - timedelta(
+                        hours=sla_hours[TicketPriority.MEDIUM]
+                    ),
+                ),
+                and_(
+                    self.model.priority == TicketPriority.LOW,
+                    self.model.created_at
+                    < now - timedelta(
+                        hours=sla_hours[TicketPriority.LOW]
+                    ),
+                ),
+            ),
+        )
+
+        query = select(
+            func.sum(
+                case(
+                    (
+                        and_(
+                            self.model.assignee_id.is_(None),
+                            self.model.status.in_(ACTIVE_STATUSES),
+                        ),
+                        1,
+                    ),
+                    else_=0,
+                )
+            ).label("unassigned"),
+
+            func.sum(
+                case(
+                    (
+                        and_(
+                            self.model.assignee_id == current_user_id,
+                            self.model.status.in_(ACTIVE_STATUSES),
+                        ),
+                        1,
+                    ),
+                    else_=0,
+                )
+            ).label("assigned_to_me"),
+
+            func.sum(
+                case(
+                    (overdue_condition, 1),
+                    else_=0,
+                )
+            ).label("overdue"),
+        )
+
+        return (await db.execute(query)).one()
 
 ticket_crud = CRUDTicket(Ticket)
