@@ -1,6 +1,7 @@
 import type { TicketStatus } from "@/features/tickets/types/ticket";
 
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/shared/search-input";
+
 import {
   Select,
   SelectContent,
@@ -9,12 +10,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { ticketStatusOptions } from "../constants/ticket-filter-options";
+
 interface UserTicketFiltersProps {
   search: string;
   status?: TicketStatus;
+
   onSearchChange: (value: string) => void;
   onStatusChange: (value?: TicketStatus) => void;
 }
+
+const userStatusOptions = [
+  {
+    label: "All statuses",
+    value: "all",
+  },
+  ...ticketStatusOptions,
+];
 
 export function UserTicketFilters({
   search,
@@ -22,83 +34,34 @@ export function UserTicketFilters({
   onSearchChange,
   onStatusChange,
 }: UserTicketFiltersProps) {
-  const statusLabels: Record<TicketStatus, string> = {
-    open: "Open",
-    in_progress: "In Progress",
-    resolved: "Resolved",
-    closed: "Closed",
-  };
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <Input
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+      <SearchInput
         value={search}
-        onChange={(event) => onSearchChange(event.target.value)}
+        onChange={onSearchChange}
         placeholder="Search tickets..."
-        className=" w-full rounded-none border-0 border-b border-b-muted-foreground/40 bg-transparent text-foreground shadow-none transition-colors placeholder:text-muted-foreground hover:border-b-primary focus-visible:border-b-primary focus-visible:ring-0 sm:max-w-md"
+        className="w-full lg:max-w-sm"
       />
 
       <Select
+        items={userStatusOptions}
         value={status ?? "all"}
-        onValueChange={(value) =>
-          onStatusChange(value === "all" ? undefined : (value as TicketStatus))
-        }
-      >
-        <SelectTrigger
-          className="
-            w-full
-    rounded-lg
-    border
-    border-border
-    bg-white
-    shadow-none
-    hover:border-primary
-    focus-visible:border-primary
-    focus-visible:ring-0
-    sm:w-48
-  "
-        >
-          <SelectValue placeholder="All statuses">
-            {(value) => {
-              if (!value || value === "all") {
-                return "All statuses";
-              }
+        onValueChange={(value) => {
+          if (!value) return;
 
-              return statusLabels[value as TicketStatus];
-            }}
-          </SelectValue>
+          onStatusChange(value === "all" ? undefined : (value as TicketStatus));
+        }}
+      >
+        <SelectTrigger className="w-[170px]">
+          <SelectValue placeholder="Status" />
         </SelectTrigger>
 
-        <SelectContent className="border-border bg-white">
-          <SelectItem
-            value="all"
-            className="bg-white data-highlighted:bg-primary/10 data-selected:bg-primary/10"
-          >
-            All statuses
-          </SelectItem>
-          <SelectItem
-            value="open"
-            className="bg-transparent data-highlighted:bg-primary/10 data-selected:bg-primary/10"
-          >
-            Open
-          </SelectItem>
-          <SelectItem
-            value="in_progress"
-            className="bg-transparent data-highlighted:bg-primary/10 data-selected:bg-primary/10"
-          >
-            In Progress
-          </SelectItem>
-          <SelectItem
-            value="resolved"
-            className="bg-transparent data-highlighted:bg-primary/10 data-selected:bg-primary/10"
-          >
-            Resolved
-          </SelectItem>
-          <SelectItem
-            value="closed"
-            className="bg-transparent data-highlighted:bg-primary/10 data-selected:bg-primary/10"
-          >
-            Closed
-          </SelectItem>
+        <SelectContent>
+          {userStatusOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>
