@@ -1,7 +1,9 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { SubmitEvent } from "react";
 import { toast } from "@/components/ui/toast";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +26,7 @@ import { useAddComment } from "@/features/tickets/hooks/use-add-comment";
 import { TicketStatusProgress } from "@/features/tickets/components/ticket-status-progress";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
 import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
-
+import { ApiError } from "@/components/shared/api-error";
 interface TicketDetailsDialogProps {
   ticketId: string | null;
   onOpenChange: (open: boolean) => void;
@@ -41,7 +43,7 @@ export function TicketDetailsDialog({
 
   const addCommentMutation = useAddComment(ticketId ?? "");
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const body = comment.trim();
@@ -70,10 +72,18 @@ export function TicketDetailsDialog({
     <Dialog open={!!ticketId} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
         {isLoading && (
-          <p className="text-sm text-muted-foreground">Loading ticket...</p>
+          <div className="flex min-h-60 items-center justify-center">
+            <Spinner className="size-6" />
+          </div>
         )}
 
-        {isError && <p className="text-sm text-destructive">{error.message}</p>}
+        {isError && (
+          <ApiError
+            variant="alert"
+            title="Could not load ticket"
+            error={error}
+          />
+        )}
 
         {ticket && (
           <>
@@ -196,14 +206,15 @@ export function TicketDetailsDialog({
               )}
 
               {addCommentMutation.isError && (
-                <p className="mt-2 text-sm text-destructive">
-                  {addCommentMutation.error.message}
-                </p>
+                <ApiError error={addCommentMutation.error} className="mt-2" />
               )}
 
               <div className="mt-3 flex justify-end">
                 <Button type="submit" disabled={addCommentMutation.isPending}>
-                  {addCommentMutation.isPending ? "Sending..." : "Add comment"}
+                  {addCommentMutation.isPending && (
+                    <Spinner className="size-4" />
+                  )}
+                  Add comment
                 </Button>
               </div>
             </form>

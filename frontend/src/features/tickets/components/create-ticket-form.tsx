@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { Spinner } from "@/components/ui/spinner";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 
 import {
@@ -24,6 +24,7 @@ import {
 
 import { useCategories } from "@/features/categories/hooks/use-categories";
 import { useCreateTicket } from "@/features/tickets/hooks/use-create-ticket";
+import { ApiError } from "@/components/shared/api-error";
 
 interface CreateTicketFormProps {
   onSuccess: () => void;
@@ -105,14 +106,12 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
             className="w-full"
             aria-invalid={!!errors.categoryId}
           >
-            <SelectValue
-              placeholder={
-                isCategoriesLoading
-                  ? "Loading categories..."
-                  : "Select a category"
-              }
-            >
+            <SelectValue placeholder="Select a category">
               {(value) => {
+                if (isCategoriesLoading) {
+                  return <Spinner className="size-4" />;
+                }
+
                 const selectedCategory = categories?.find(
                   (category) => category.id === value,
                 );
@@ -153,19 +152,15 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
       </Field>
 
       {createTicketMutation.isError && (
-        <p className="text-sm text-destructive">
-          {createTicketMutation.error.message}
-        </p>
+        <ApiError error={createTicketMutation.error} />
       )}
-
       <Button
         type="submit"
         className="w-full"
         disabled={createTicketMutation.isPending}
       >
-        {createTicketMutation.isPending
-          ? "Creating ticket..."
-          : "Create ticket"}
+        {createTicketMutation.isPending && <Spinner className="size-4" />}
+        Create ticket
       </Button>
     </form>
   );

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import type { UserRole } from "@/features/users/types/user";
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 import { getDashboardRoute } from "@/features/auth/utils/get-dashboard-route";
+import { Spinner } from "@/components/ui/spinner";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -33,11 +34,19 @@ export function RoleGuard({ children, allowedRoles }: RoleGuardProps) {
   }, [user, isLoading, isError, allowedRoles, router]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Spinner className="size-7" />
+      </div>
+    );
   }
 
   if (!user || !isAllowed) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Spinner className="size-7" />
+      </div>
+    );
   }
 
   return children;

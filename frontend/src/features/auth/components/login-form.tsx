@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { Spinner } from "@/components/ui/spinner";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { login } from "@/features/auth/api/login";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getDashboardRoute } from "@/features/auth/utils/get-dashboard-route";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
+import { ApiError } from "@/components/shared/api-error";
 import {
   InputGroup,
   InputGroupAddon,
@@ -117,14 +118,11 @@ function LoginForm() {
 
       <div className="flex flex-col gap-2">
         <div className="flex min-h-5 justify-center">
-          {loginMutation.isError && (
-            <p className="text-sm text-destructive">
-              {loginMutation.error.message}
-            </p>
-          )}
+          {loginMutation.isError && <ApiError error={loginMutation.error} />}
         </div>
         <Button type="submit" disabled={loginMutation.isPending}>
-          {loginMutation.isPending ? "Signing in..." : "Sign in"}
+          {loginMutation.isPending && <Spinner className="size-4" />}
+          Sign in
         </Button>
       </div>
     </form>
