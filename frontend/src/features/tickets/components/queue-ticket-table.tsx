@@ -34,7 +34,7 @@ export function QueueTicketTable({
             <TableHead>Category</TableHead>
             <TableHead>Assignee</TableHead>
             <TableHead>Created</TableHead>
-            <TableHead className="w-[60px]">
+            <TableHead className="w-60px">
               <span className="sr-only">Actions</span>
             </TableHead>
           </TableRow>

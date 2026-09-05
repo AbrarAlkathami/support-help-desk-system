@@ -52,7 +52,7 @@ export function UserTicketFilters({
           onStatusChange(value === "all" ? undefined : (value as TicketStatus));
         }}
       >
-        <SelectTrigger className="w-[170px]">
+        <SelectTrigger className="w-170px">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
 

@@ -172,7 +172,7 @@ export function TicketQueueFilters({
           onCategoryChange(value === "all" ? null : value);
         }}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-180px">
           <SelectValue
             placeholder={
               isCategoriesError ? "Categories unavailable" : "Category"
@@ -199,7 +199,7 @@ export function TicketQueueFilters({
           onAssigneeChange(value === "all" ? null : value);
         }}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-180px">
           <SelectValue
             placeholder={
               isModeratorsError ? "Assignees unavailable" : "Assignee"
@@ -232,7 +232,7 @@ export function TicketQueueFilters({
           }
         }}
       >
-        <SelectTrigger className="w-[190px]">
+        <SelectTrigger className="w-190px">
           <SelectValue placeholder="Sort by" />
         </SelectTrigger>
 
