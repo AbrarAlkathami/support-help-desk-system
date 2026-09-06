@@ -165,8 +165,13 @@ Create a `.env` file inside the backend directory.
 Example:
 
 ```env
-DATABASE_URL=sqlite:///./helpdesk.db
-SECRET_KEY=your-secret-key
+DATABASE_URL=sqlite+aiosqlite:///./helpdesk.db
+
+JWT_SECRET_KEY=your-generated-secret-here
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+
+FRONTEND_ORIGIN=http://localhost:3001
 ```
 
 Use the environment variable names and values required by your local setup.
