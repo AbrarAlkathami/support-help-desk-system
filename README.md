@@ -266,7 +266,7 @@ pnpm dev -- --port 3001
 Open:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 ---
@@ -651,7 +651,7 @@ pnpm dev -- --port 3001
 4. Open:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 5. Test each role using:
