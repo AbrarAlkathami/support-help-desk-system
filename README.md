@@ -120,7 +120,56 @@ support-help-desk-system/
 └── README.md
 ```
 
+## Demo Videos
+
+The following walkthroughs demonstrate the main workflows and role-based capabilities of the Support Help Desk system.
+
+### User
+
+The user walkthrough demonstrates the employee-facing ticket experience, including:
+
+- Signing in to the application
+- Viewing personal support tickets
+- Creating a new ticket
+- Searching and filtering tickets
+- Navigating paginated ticket results
+- Viewing ticket details and status progress
+- Adding comments to the ticket conversation
+
+[▶ Watch User Demo](./docs/videos/user-demo.mp4)
+
 ---
+
+### Moderator
+
+The moderator walkthrough demonstrates the support queue and ticket management workflow, including:
+
+- Viewing queue metrics and incoming tickets
+- Searching, filtering, sorting, and paginating the ticket queue
+- Filtering tickets by status, priority, category, and assignee
+- Assigning tickets to themselves
+- Viewing ticket details and conversations
+- Updating ticket assignment, status, and priority
+- Monitoring ticket SLA status
+
+[▶ Watch Moderator Demo](./docs/videos/moderator-demo.mp4)
+
+---
+
+### Administrator
+
+The administrator walkthrough demonstrates the administrative and platform management capabilities, including:
+
+- Viewing platform metrics and ticket analytics
+- Monitoring recent ticket activity
+- Viewing ticket distribution by category and status
+- Viewing account and role statistics
+- Managing the support ticket queue
+- Managing users and roles
+- Creating and updating user accounts
+- Performing administrative ticket actions
+
+## [▶ Watch Admin Demo](./docs/videos/admin-demo.mp4)
 
 # Getting Started
 
