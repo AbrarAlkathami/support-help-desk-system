@@ -46,11 +46,19 @@ export function TicketSla({ dueAt, isOverdue, status }: TicketSlaProps) {
   const difference = new Date(dueAt).getTime() - now;
 
   const absoluteMinutes = Math.ceil(Math.abs(difference) / (1000 * 60));
-
-  const hours = Math.floor(absoluteMinutes / 60);
+  const days = Math.floor(absoluteMinutes / (60 * 24));
+  const hours = Math.floor((absoluteMinutes % (60 * 24)) / 60);
   const minutes = absoluteMinutes % 60;
 
-  const time = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+  let time: string;
+
+  if (days > 0) {
+    time = `${days}d ${hours}h`;
+  } else if (hours > 0) {
+    time = `${hours}h ${minutes}m`;
+  } else {
+    time = `${minutes}m`;
+  }
 
   if (isOverdue) {
     return (
