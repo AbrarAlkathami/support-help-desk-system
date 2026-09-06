@@ -71,22 +71,27 @@ export function CategoryManagement() {
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-black/5 bg-white/35 shadow-sm backdrop-blur-[2px]">
+        <div className="overflow-x-auto rounded-xl border bg-card">
           <Table>
-            <TableHeader className="bg-white/25">
+            <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead>Category</TableHead>
 
-                <TableHead className="w-30 text-right">Tickets</TableHead>
+                <TableHead className="w-[160px] text-left">Tickets</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
               {categories.map((category) => (
-                <TableRow key={category.id} className="hover:bg-[#F2A88D]/20">
-                  <TableCell className="font-medium">{category.name}</TableCell>
+                <TableRow
+                  key={category.id}
+                  className="h-[64px] transition-colors hover:bg-muted/40 "
+                >
+                  <TableCell className="font-medium pl-4">
+                    {category.name}
+                  </TableCell>
 
-                  <TableCell className="text-right font-medium">
+                  <TableCell className="text-left font-medium pl-4">
                     {getTicketCount(category.name)}
                   </TableCell>
                 </TableRow>
