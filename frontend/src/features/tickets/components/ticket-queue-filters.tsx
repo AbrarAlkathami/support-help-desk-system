@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Check, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -8,9 +8,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 import {
   Select,
   SelectContent,
@@ -131,161 +131,211 @@ export function TicketQueueFilters({
     Boolean(categoryId) ||
     Boolean(assignee);
 
+  const selectedCategoryLabel =
+    categoryOptions.find((option) => option.value === (categoryId ?? "all"))
+      ?.label ?? "All categories";
+
+  const selectedAssigneeLabel =
+    assigneeOptions.find((option) => option.value === (assignee ?? "all"))
+      ?.label ?? "All assignees";
+
+  const selectedSortValue = `${sortBy}-${sortOrder}`;
+
+  const selectedSortLabel =
+    ticketSortOptions.find((option) => option.value === selectedSortValue)
+      ?.label ?? "Newest first";
+
+  const filterTriggerClass =
+    "h-9 shrink-0 justify-between rounded-none border-0  bg-background px-3 font-normal shadow-none hover:bg-background focus-visible:border-foreground/40 focus-visible:ring-0 whitespace-nowrap";
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center gap-4">
+      {" "}
       <SearchInput
         value={search}
         onChange={onSearchChange}
         placeholder="Search tickets..."
-        className="w-full sm:w-[280px] lg:w-[320px]"
+        className="w-[260px] shrink-0"
       />
-
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="outline"
-              className="h-9 justify-between bg-background shadow-none"
-            />
-          }
-        >
-          {status.length ? `Status (${status.length})` : "Status"}
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="start" className="w-48">
-          {ticketStatusOptions.map((option) => (
-            <DropdownMenuCheckboxItem
-              key={option.value}
-              checked={status.includes(option.value)}
-              onCheckedChange={() => onStatusToggle(option.value)}
-            >
-              {option.label}
-            </DropdownMenuCheckboxItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button
-              variant="outline"
-              className="h-9 justify-between bg-background shadow-none"
-            />
-          }
-        >
-          {priority.length ? `Priority (${priority.length})` : "Priority"}
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="start" className="w-48">
-          {ticketPriorityOptions.map((option) => (
-            <DropdownMenuCheckboxItem
-              key={option.value}
-              checked={priority.includes(option.value)}
-              onCheckedChange={() => onPriorityToggle(option.value)}
-            >
-              {option.label}
-            </DropdownMenuCheckboxItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Select
-        items={categoryOptions}
-        value={categoryId ?? "all"}
-        disabled={isCategoriesLoading || isCategoriesError}
-        onValueChange={(value) => {
-          if (!value) return;
-
-          onCategoryChange(value === "all" ? null : value);
-        }}
-      >
-        <SelectTrigger className="h-9 w-[180px] bg-background shadow-none">
-          <SelectValue
-            placeholder={
-              isCategoriesError ? "Categories unavailable" : "Category"
+      {/* Status */}
+      <div className="ml-auto flex items-center gap-2 overflow-x-auto">
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className={`${filterTriggerClass} min-w-[120px]`}
+              />
             }
-          />
-        </SelectTrigger>
+          >
+            <span>
+              {status.length ? `Status · ${status.length}` : "Status"}
+            </span>
 
-        <SelectContent>
-          {categoryOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            <ChevronDown className="size-4 text-muted-foreground" />
+          </DropdownMenuTrigger>
 
-      <Select
-        items={assigneeOptions}
-        value={assignee ?? "all"}
-        disabled={isModeratorsLoading || isModeratorsError}
-        onValueChange={(value) => {
-          if (!value) return;
-
-          onAssigneeChange(value === "all" ? null : value);
-        }}
-      >
-        <SelectTrigger className="h-9 w-[180px] bg-background shadow-none">
-          <SelectValue
-            placeholder={
-              isModeratorsError ? "Assignees unavailable" : "Assignee"
+          <DropdownMenuContent align="start" className="w-48">
+            {ticketStatusOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={status.includes(option.value)}
+                onCheckedChange={() => onStatusToggle(option.value)}
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* Priority */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className={`${filterTriggerClass} min-w-[120px]`}
+              />
             }
-          />
-        </SelectTrigger>
+          >
+            <span>
+              {priority.length ? `Priority · ${priority.length}` : "Priority"}
+            </span>
 
-        <SelectContent>
-          {assigneeOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            <ChevronDown className="size-4 text-muted-foreground" />
+          </DropdownMenuTrigger>
 
-      <Select
-        items={ticketSortOptions}
-        value={`${sortBy}-${sortOrder}`}
-        onValueChange={(value) => {
-          if (!value) return;
+          <DropdownMenuContent align="start" className="w-48">
+            {ticketPriorityOptions.map((option) => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={priority.includes(option.value)}
+                onCheckedChange={() => onPriorityToggle(option.value)}
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* Category */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                disabled={isCategoriesLoading || isCategoriesError}
+                className={`${filterTriggerClass} min-w-[170px]`}
+              />
+            }
+          >
+            <span>{selectedCategoryLabel}</span>
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+          </DropdownMenuTrigger>
 
-          const [newSortBy, newSortOrder] = value.split("-");
+          <DropdownMenuContent align="start" className="w-[210px]">
+            {categoryOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() =>
+                  onCategoryChange(option.value === "all" ? null : option.value)
+                }
+              >
+                <span className="flex-1">{option.label}</span>
 
-          if (
-            (newSortBy === "created_at" || newSortBy === "priority") &&
-            (newSortOrder === "asc" || newSortOrder === "desc")
-          ) {
-            onSortChange(newSortBy, newSortOrder);
-          }
-        }}
-      >
-        <SelectTrigger className="h-9 w-[190px] bg-background shadow-none">
-          <SelectValue placeholder="Sort by" />
-        </SelectTrigger>
+                {(categoryId ?? "all") === option.value && (
+                  <Check className="size-4" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* Assignee */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                disabled={isModeratorsLoading || isModeratorsError}
+                className={`${filterTriggerClass} min-w-[170px]`}
+              />
+            }
+          >
+            <span className="truncate">{selectedAssigneeLabel}</span>
 
-        <SelectContent>
-          {ticketSortOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+          </DropdownMenuTrigger>
 
-      {hasActiveFilters && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-9 text-muted-foreground"
-          onClick={onClearFilters}
-          aria-label="Clear filters"
-          title="Clear filters"
-        >
-          <X className="size-4" />
-        </Button>
-      )}
+          <DropdownMenuContent align="start" className="w-[210px]">
+            {assigneeOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() =>
+                  onAssigneeChange(option.value === "all" ? null : option.value)
+                }
+              >
+                <span className="flex-1">{option.label}</span>
+
+                {(assignee ?? "all") === option.value && (
+                  <Check className="size-4" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {/* Sort */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                className={`${filterTriggerClass} min-w-[200px]`}
+              />
+            }
+          >
+            <div className="flex min-w-0 items-center gap-2">
+              <ArrowUpDown className="size-4 shrink-0 text-muted-foreground" />
+              <span>{selectedSortLabel}</span>
+            </div>
+
+            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="start" className="w-[230px]">
+            {ticketSortOptions.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                onClick={() => {
+                  const [newSortBy, newSortOrder] = option.value.split("-");
+
+                  if (
+                    (newSortBy === "created_at" || newSortBy === "priority") &&
+                    (newSortOrder === "asc" || newSortOrder === "desc")
+                  ) {
+                    onSortChange(newSortBy, newSortOrder);
+                  }
+                }}
+              >
+                <span className="flex-1">{option.label}</span>
+
+                {selectedSortValue === option.value && (
+                  <Check className="size-4" />
+                )}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        {hasActiveFilters && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-9 text-muted-foreground"
+            onClick={onClearFilters}
+            aria-label="Clear filters"
+            title="Clear filters"
+          >
+            <X className="size-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

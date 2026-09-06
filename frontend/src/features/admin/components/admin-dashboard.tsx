@@ -36,7 +36,7 @@ export function AdminDashboard() {
       </div>
 
       <TabsContent value="overview">
-        <AdminMetrics />
+        <AdminMetrics onViewAllTickets={() => setActiveTab("tickets")} />
       </TabsContent>
 
       <TabsContent value="tickets">

@@ -19,10 +19,12 @@ export function SummaryCard({ title, value, icon: Icon }: SummaryCardProps) {
         </div>
 
         {Icon && (
-          <Icon
-            className="size-8 shrink-0 text-muted-foreground/40"
-            strokeWidth={1.4}
-          />
+          <div className="flex size-9 items-center justify-center rounded-xl border border-trinidad-100 bg-trinidad-50 text-trinidad-600">
+            <Icon
+              className="size-8 shrink-0 text-muted-foreground/40"
+              strokeWidth={1.4}
+            />
+          </div>
         )}
       </CardContent>
     </Card>

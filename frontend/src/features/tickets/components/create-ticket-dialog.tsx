@@ -23,7 +23,7 @@ export function CreateTicketDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button>
+          <Button className="rounded-full bg-trinidad-500 px-4 text-white shadow-none hover:bg-trinidad-600">
             <PlusIcon />
             New Ticket
           </Button>

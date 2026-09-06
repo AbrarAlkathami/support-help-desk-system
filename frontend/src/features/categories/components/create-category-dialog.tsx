@@ -68,7 +68,7 @@ export function CreateCategoryDialog() {
     >
       <DialogTrigger
         render={
-          <Button>
+          <Button className="bg-trinidad-500 text-white hover:bg-trinidad-600 hover:text-white">
             <Plus className="size-4" />
             New category
           </Button>

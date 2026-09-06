@@ -100,12 +100,14 @@ export function TicketRowActions({ ticket, onOpen }: TicketRowActionsProps) {
 
           <DropdownMenuItem onClick={onOpen}>View details</DropdownMenuItem>
 
-          <DropdownMenuItem
-            disabled={!currentUser || ticket.assignee?.id === currentUser.id}
-            onClick={handleAssignToMe}
-          >
-            Assign to me
-          </DropdownMenuItem>
+          {currentUser?.role === "moderator" && (
+            <DropdownMenuItem
+              disabled={ticket.assignee?.id === currentUser.id}
+              onClick={handleAssignToMe}
+            >
+              Assign to me
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
 
         <DropdownMenuSeparator />

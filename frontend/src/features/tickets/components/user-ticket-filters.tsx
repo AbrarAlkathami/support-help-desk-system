@@ -44,46 +44,49 @@ export function UserTicketFilters({
   const hasActiveFilters = search.trim().length > 0 || Boolean(status);
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center gap-4">
       <SearchInput
         value={search}
         onChange={onSearchChange}
         placeholder="Search tickets..."
         className="w-full sm:w-[280px] lg:w-[320px]"
       />
+      <div className="ml-auto flex items-center gap-2">
+        <Select
+          items={userStatusOptions}
+          value={status ?? "all"}
+          onValueChange={(value) => {
+            if (!value) return;
 
-      <Select
-        items={userStatusOptions}
-        value={status ?? "all"}
-        onValueChange={(value) => {
-          if (!value) return;
-
-          onStatusChange(value === "all" ? undefined : (value as TicketStatus));
-        }}
-      >
-        <SelectTrigger className="h-9 w-[160px] bg-background shadow-none">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-
-        <SelectContent>
-          {userStatusOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {hasActiveFilters && (
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-9 gap-1.5 px-2 text-muted-foreground"
-          onClick={onClearFilters}
+            onStatusChange(
+              value === "all" ? undefined : (value as TicketStatus),
+            );
+          }}
         >
-          <X className="size-4" />
-        </Button>
-      )}
+          <SelectTrigger className="h-9 w-[160px] bg-background shadow-none">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+
+          <SelectContent>
+            {userStatusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {hasActiveFilters && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-9 gap-1.5 px-2 text-muted-foreground"
+            onClick={onClearFilters}
+          >
+            <X className="size-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

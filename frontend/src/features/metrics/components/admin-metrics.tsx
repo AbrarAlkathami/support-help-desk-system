@@ -38,6 +38,7 @@ import { SummaryCard } from "@/features/tickets/components/summary-card";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
 import { TicketSla } from "@/features/tickets/components/ticket-sla";
 import { UserIdentity } from "@/components/shared/user-identity";
+import { Button } from "@/components/ui/button";
 const statusChartConfig = {
   count: {
     label: "Tickets",
@@ -45,20 +46,13 @@ const statusChartConfig = {
 } satisfies ChartConfig;
 
 const statusColors: Record<TicketStatus, string> = {
-  open: "#3b82f6", // blue-500
-  in_progress: "#f59e0b", // amber-500
-  resolved: "#10b981", // emerald-500
-  closed: "#71717a", // zinc-500
+  open: "#f96116",
+  in_progress: "#fb833c",
+  resolved: "#fdaf74",
+  closed: "#fed1aa",
 };
 
-const categoryColors = [
-  "#60a5fa", // blue
-  "#34d399", // emerald
-  "#fbbf24", // amber
-  "#a78bfa", // violet
-  "#fb7185", // rose
-];
-
+const categoryColors = ["#f96116", "#fb833c", "#fdaf74", "#f2490c", "#fed1aa"];
 const CategoryBarShape = (props: BarShapeProps) => {
   const color = categoryColors[props.index % categoryColors.length];
 
@@ -72,7 +66,11 @@ const categoryChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function AdminMetrics() {
+interface AdminMetricsProps {
+  onViewAllTickets: () => void;
+}
+
+export function AdminMetrics({ onViewAllTickets }: AdminMetricsProps) {
   const {
     data: metrics,
     isLoading: isMetricsLoading,
@@ -109,7 +107,7 @@ export function AdminMetrics() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          <Skeleton className="h-90rounded-xl" />
+          <Skeleton className="h-90 rounded-xl" />
           <Skeleton className="h-90 rounded-xl" />
         </div>
 
@@ -232,7 +230,7 @@ export function AdminMetrics() {
           <CardContent>
             <ChartContainer
               config={statusChartConfig}
-              className="mx-auto h-280px w-full"
+              className="mx-auto h-[280px] w-full"
             >
               <PieChart>
                 <ChartTooltip
@@ -255,13 +253,24 @@ export function AdminMetrics() {
 
       <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <Card>
-          <CardHeader>
-            <CardTitle>Recent tickets</CardTitle>
-            <CardDescription>
-              Latest support requests across the platform.
-            </CardDescription>
-          </CardHeader>
+          <CardHeader className="flex flex-row items-start justify-between">
+            <div>
+              <CardTitle>Recent tickets</CardTitle>
 
+              <CardDescription className="mt-1">
+                Latest support requests across the platform.
+              </CardDescription>
+            </div>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onViewAllTickets}
+              className="text-trinidad-700 hover:bg-trinidad-50 hover:text-trinidad-800"
+            >
+              View all tickets
+            </Button>
+          </CardHeader>
           <CardContent>
             <div className="space-y-1">
               {(recentTickets?.items ?? []).map((ticket) => (

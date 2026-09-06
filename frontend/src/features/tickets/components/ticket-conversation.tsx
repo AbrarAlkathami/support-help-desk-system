@@ -2,15 +2,31 @@
 
 import { useState } from "react";
 import type { SubmitEvent } from "react";
-import { Send } from "lucide-react";
+
+import { ArrowUpIcon } from "lucide-react";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+} from "@/components/ui/input-group";
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
+
+import {
+  Message,
+  MessageContent,
+  MessageFooter,
+  MessageHeader,
+} from "@/components/ui/message";
+
 import { ApiError } from "@/components/shared/api-error";
-import { UserIdentity } from "@/components/shared/user-identity";
 
 import { useAddComment } from "@/features/tickets/hooks/use-add-comment";
 
@@ -31,13 +47,74 @@ interface TicketConversationProps {
   currentUserId?: string;
 }
 
-function formatCommentDate(date: string) {
-  return new Date(date).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
+
+function formatTime(date: string) {
+  return new Date(date).toLocaleTimeString(undefined, {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+function formatDateSeparator(date: string) {
+  const commentDate = new Date(date);
+  const today = new Date();
+
+  const startOfToday = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  const startOfComment = new Date(
+    commentDate.getFullYear(),
+    commentDate.getMonth(),
+    commentDate.getDate(),
+  );
+
+  const differenceInDays = Math.round(
+    (startOfToday.getTime() - startOfComment.getTime()) / (1000 * 60 * 60 * 24),
+  );
+
+  if (differenceInDays === 0) {
+    return "Today";
+  }
+
+  if (differenceInDays === 1) {
+    return "Yesterday";
+  }
+
+  if (differenceInDays <= 6) {
+    return commentDate.toLocaleDateString(undefined, {
+      weekday: "long",
+    });
+  }
+
+  if (commentDate.getFullYear() === today.getFullYear()) {
+    return commentDate.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+    });
+  }
+
+  return commentDate.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getDateKey(date: string) {
+  const value = new Date(date);
+
+  return `${value.getFullYear()}-${value.getMonth()}-${value.getDate()}`;
 }
 
 export function TicketConversation({
@@ -75,10 +152,12 @@ export function TicketConversation({
     });
   };
 
+  let previousDateKey: string | null = null;
+
   return (
     <div className="space-y-5">
       <div>
-        <h3 className="text-sm font-semibold">Conversation</h3>
+        <h3 className="text-sm font-semibold">Comments</h3>
 
         <p className="mt-1 text-xs text-muted-foreground">
           {comments.length === 0
@@ -91,7 +170,7 @@ export function TicketConversation({
 
       <div className="space-y-5">
         {comments.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-6 text-center">
+          <div className="rounded-xl border border-dashed p-6 text-center">
             <p className="text-sm text-muted-foreground">
               No comments yet. Start the conversation below.
             </p>
@@ -100,40 +179,60 @@ export function TicketConversation({
           comments.map((ticketComment) => {
             const isCurrentUser = ticketComment.authorId === currentUserId;
 
-            return (
-              <div
-                key={ticketComment.id}
-                className={`flex ${
-                  isCurrentUser ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div className="w-full max-w-[85%] space-y-2">
-                  <div
-                    className={`flex items-center gap-2 ${
-                      isCurrentUser ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <UserIdentity
-                      name={ticketComment.author.name}
-                      email={ticketComment.author.email}
-                    />
+            const dateKey = getDateKey(ticketComment.createdAt);
 
-                    <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-                      {formatCommentDate(ticketComment.createdAt)}
+            const showDateSeparator = dateKey !== previousDateKey;
+
+            previousDateKey = dateKey;
+
+            return (
+              <div key={ticketComment.id} className="space-y-4">
+                {showDateSeparator && (
+                  <div className="flex items-center justify-center py-2">
+                    <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                      {formatDateSeparator(ticketComment.createdAt)}
                     </span>
                   </div>
+                )}
 
-                  <div
-                    className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
-                      isCurrentUser
-                        ? "ml-auto rounded-tr-sm bg-primary text-primary-foreground"
-                        : "mr-auto rounded-tl-sm bg-muted/70 text-foreground"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap break-words">
-                      {ticketComment.body}
-                    </p>
-                  </div>
+                <div
+                  className={`flex items-start gap-2 ${
+                    isCurrentUser ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {!isCurrentUser && (
+                    <Avatar className="mt-5 size-7">
+                      <AvatarFallback className="text-[10px]">
+                        {getInitials(ticketComment.author.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+
+                  <Message align={isCurrentUser ? "end" : undefined}>
+                    <MessageContent>
+                      <MessageHeader>{ticketComment.author.name}</MessageHeader>
+
+                      <Bubble variant={isCurrentUser ? undefined : "muted"}>
+                        <BubbleContent>
+                          <p className="whitespace-pre-wrap break-words">
+                            {ticketComment.body}
+                          </p>
+                        </BubbleContent>
+                      </Bubble>
+
+                      <MessageFooter>
+                        {formatTime(ticketComment.createdAt)}
+                      </MessageFooter>
+                    </MessageContent>
+                  </Message>
+
+                  {isCurrentUser && (
+                    <Avatar className="mt-5 size-7">
+                      <AvatarFallback className="text-[10px]">
+                        {getInitials(ticketComment.author.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               </div>
             );
@@ -141,20 +240,41 @@ export function TicketConversation({
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border bg-card p-3">
-        <Textarea
-          value={comment}
-          rows={3}
-          placeholder="Write a reply..."
-          className="resize-none border-0 bg-transparent p-1 shadow-none focus-visible:ring-0"
-          onChange={(event) => {
-            setComment(event.target.value);
+      <form onSubmit={handleSubmit} className="w-full">
+        <InputGroup className="rounded-xl">
+          <Textarea
+            value={comment}
+            rows={1}
+            placeholder="Write a reply..."
+            className="min-h-[44px] max-h-24 resize-none border-0 bg-transparent px-3 py-2.5 shadow-none focus-visible:ring-0"
+            onChange={(event) => {
+              setComment(event.target.value);
 
-            if (commentError) {
-              setCommentError("");
-            }
-          }}
-        />
+              if (commentError) {
+                setCommentError("");
+              }
+            }}
+          />
+
+          <InputGroupAddon align="block-end" className="px-2 pb-1.5">
+            <InputGroupButton
+              type="submit"
+              variant="default"
+              size="icon-sm"
+              disabled={!comment.trim() || addCommentMutation.isPending}
+              className="ml-auto rounded-full"
+              aria-label="Send reply"
+            >
+              {addCommentMutation.isPending ? (
+                <Spinner className="size-4" />
+              ) : (
+                <ArrowUpIcon className="size-4" />
+              )}
+
+              <span className="sr-only">Send reply</span>
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
 
         {commentError && (
           <p className="mt-2 text-sm text-destructive">{commentError}</p>
@@ -163,22 +283,6 @@ export function TicketConversation({
         {addCommentMutation.isError && (
           <ApiError error={addCommentMutation.error} className="mt-2" />
         )}
-
-        <div className="mt-3 flex justify-end border-t pt-3">
-          <Button
-            type="submit"
-            size="sm"
-            disabled={addCommentMutation.isPending}
-            className="gap-2"
-          >
-            {addCommentMutation.isPending ? (
-              <Spinner className="size-4" />
-            ) : (
-              <Send className="size-4" />
-            )}
-            Reply
-          </Button>
-        </div>
       </form>
     </div>
   );

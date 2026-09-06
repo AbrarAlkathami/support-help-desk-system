@@ -81,7 +81,11 @@ export function CreateUserDialog() {
       }}
     >
       {" "}
-      <DialogTrigger render={<Button />}>
+      <DialogTrigger
+        render={
+          <Button className="bg-trinidad-500 text-white hover:bg-trinidad-600 hover:text-white" />
+        }
+      >
         <Plus className="size-4" />
         New account
       </DialogTrigger>

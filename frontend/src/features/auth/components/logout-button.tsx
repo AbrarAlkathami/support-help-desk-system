@@ -11,9 +11,13 @@ export function LogoutButton() {
       variant="outline"
       onClick={() => logoutMutation.mutate()}
       disabled={logoutMutation.isPending}
-      className="bg-transparent border-2"
+      className="rounded-full bg-trinidad-500 px-4 text-white shadow-none hover:bg-trinidad-600"
     >
-      {logoutMutation.isPending ? "" : <LogOut />}
+      {logoutMutation.isPending ? (
+        ""
+      ) : (
+        <LogOut className="size-4 text-white group-hover:text-white" />
+      )}
     </Button>
   );
 }
