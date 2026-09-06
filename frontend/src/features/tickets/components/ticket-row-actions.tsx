@@ -1,14 +1,8 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/components/ui/toast";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -16,10 +10,10 @@ import {
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import { ApiError } from "@/components/shared/api-error";
+import { DataTableActions } from "@/components/shared/data-table-actions";
 
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 import { useUpdateTicket } from "@/features/tickets/hooks/use-update-ticket";
@@ -66,7 +60,9 @@ export function TicketRowActions({ ticket, onOpen }: TicketRowActionsProps) {
 
   const handleStatus = (status: TicketStatus) => {
     mutation.mutate(
-      { status },
+      {
+        status,
+      },
       {
         onSuccess: () => {
           toast.add({
@@ -81,7 +77,9 @@ export function TicketRowActions({ ticket, onOpen }: TicketRowActionsProps) {
 
   const handlePriority = (priority: TicketPriority) => {
     mutation.mutate(
-      { priority },
+      {
+        priority,
+      },
       {
         onSuccess: () => {
           toast.add({
@@ -95,75 +93,61 @@ export function TicketRowActions({ ticket, onOpen }: TicketRowActionsProps) {
   };
 
   return (
-    <div onClick={(event) => event.stopPropagation()}>
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="ghost" size="icon" aria-label="Ticket actions" />
-          }
-        >
-          {mutation.isPending ? (
-            <Spinner className="size-4" />
-          ) : (
-            <MoreHorizontal className="size-4" />
-          )}
-        </DropdownMenuTrigger>
+    <>
+      <DataTableActions isPending={mutation.isPending} label="Ticket actions">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Ticket actions</DropdownMenuLabel>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel>Ticket actions</DropdownMenuLabel>
+          <DropdownMenuItem onClick={onOpen}>View details</DropdownMenuItem>
 
-            <DropdownMenuItem onClick={onOpen}>Open ticket</DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={!currentUser || ticket.assignee?.id === currentUser.id}
+            onClick={handleAssignToMe}
+          >
+            Assign to me
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
 
-            <DropdownMenuItem
-              disabled={!currentUser || ticket.assignee?.id === currentUser.id}
-              onClick={handleAssignToMe}
-            >
-              Assign to me
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
+        <DropdownMenuSeparator />
 
-          <DropdownMenuSeparator />
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Change status</DropdownMenuSubTrigger>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Status</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuGroup>
+              {ticketStatusOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  disabled={ticket.status === option.value}
+                  onClick={() => handleStatus(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
 
-            <DropdownMenuSubContent>
-              <DropdownMenuGroup>
-                {ticketStatusOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    disabled={ticket.status === option.value}
-                    onClick={() => handleStatus(option.value)}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Change priority</DropdownMenuSubTrigger>
 
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>Priority</DropdownMenuSubTrigger>
-
-            <DropdownMenuSubContent>
-              <DropdownMenuGroup>
-                {ticketPriorityOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    disabled={ticket.priority === option.value}
-                    onClick={() => handlePriority(option.value)}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          <DropdownMenuSubContent>
+            <DropdownMenuGroup>
+              {ticketPriorityOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  disabled={ticket.priority === option.value}
+                  onClick={() => handlePriority(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      </DataTableActions>
 
       {mutation.isError && <ApiError error={mutation.error} className="mt-1" />}
-    </div>
+    </>
   );
 }
