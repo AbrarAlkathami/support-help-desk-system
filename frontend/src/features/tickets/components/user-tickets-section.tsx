@@ -83,10 +83,6 @@ function UserTicketsSection() {
   };
 
   useEffect(() => {
-    setSearchInput(search);
-  }, [search]);
-
-  useEffect(() => {
     const timeout = setTimeout(() => {
       const value = searchInput.trim();
 

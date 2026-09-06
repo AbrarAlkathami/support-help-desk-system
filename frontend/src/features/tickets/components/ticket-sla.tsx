@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import type { TicketStatus } from "@/features/tickets/types/ticket";
 
 interface TicketSlaProps {
@@ -7,6 +11,22 @@ interface TicketSlaProps {
 }
 
 export function TicketSla({ dueAt, isOverdue, status }: TicketSlaProps) {
+  const [now, setNow] = useState<number | null>(null);
+
+  useEffect(() => {
+    const updateNow = () => {
+      setNow(Date.now());
+    };
+
+    const timeout = window.setTimeout(updateNow, 0);
+    const interval = window.setInterval(updateNow, 60_000);
+
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
+  }, []);
+
   if (status === "resolved" || status === "closed") {
     return (
       <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
@@ -15,7 +35,15 @@ export function TicketSla({ dueAt, isOverdue, status }: TicketSlaProps) {
     );
   }
 
-  const difference = new Date(dueAt).getTime() - Date.now();
+  if (now === null) {
+    return (
+      <span className="text-xs text-muted-foreground">
+        {isOverdue ? "Overdue" : "Due"}
+      </span>
+    );
+  }
+
+  const difference = new Date(dueAt).getTime() - now;
 
   const absoluteMinutes = Math.ceil(Math.abs(difference) / (1000 * 60));
 
@@ -26,7 +54,7 @@ export function TicketSla({ dueAt, isOverdue, status }: TicketSlaProps) {
 
   if (isOverdue) {
     return (
-      <span className="inline-flex whitespace-nowrap rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+      <span className="inline-flex whitespace-nowrap rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">
         Overdue · {time}
       </span>
     );
@@ -34,7 +62,7 @@ export function TicketSla({ dueAt, isOverdue, status }: TicketSlaProps) {
 
   if (absoluteMinutes <= 60) {
     return (
-      <span className="inline-flex whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
+      <span className="inline-flex whitespace-nowrap rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
         Due soon · {time}
       </span>
     );

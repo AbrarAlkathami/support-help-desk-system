@@ -11,12 +11,9 @@ import {
 } from "@/components/ui/input-group";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
-
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 
 import {

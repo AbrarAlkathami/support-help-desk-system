@@ -1,9 +1,7 @@
 "use client";
 
 import { ArrowUpDown, ChevronDown, Check, X } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -11,14 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
 import { SearchInput } from "@/components/shared/search-input";
 
 import {

@@ -1,6 +1,3 @@
-import { PlusIcon } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import UserTicketsSection from "@/features/tickets/components/user-tickets-section";
 import { CreateTicketDialog } from "@/features/tickets/components/create-ticket-dialog";
 import { LogoutButton } from "@/features/auth/components/logout-button";

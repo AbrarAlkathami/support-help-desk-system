@@ -4,7 +4,6 @@ import {
   Bar,
   BarChart,
   BarShapeProps,
-  CartesianGrid,
   Pie,
   PieChart,
   Rectangle,
