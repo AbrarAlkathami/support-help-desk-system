@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import type { SubmitEvent } from "react";
-
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 import {
   Select,
@@ -19,24 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import {
-  Message,
-  MessageContent,
-  MessageFooter,
-  MessageHeader,
-} from "@/components/ui/message";
-
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { UserIdentity } from "@/components/shared/user-identity";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/toast";
 
 import { ApiError } from "@/components/shared/api-error";
+import { UserIdentity } from "@/components/shared/user-identity";
 
 import { useTicket } from "@/features/tickets/hooks/use-ticket";
-import { useAddComment } from "@/features/tickets/hooks/use-add-comment";
 import { useUpdateTicket } from "@/features/tickets/hooks/use-update-ticket";
 
 import { useModerators } from "@/features/users/hooks/use-moderators";
@@ -45,6 +32,7 @@ import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
 import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
 import { TicketStatusProgress } from "@/features/tickets/components/ticket-status-progress";
+import { TicketConversation } from "@/features/tickets/components/ticket-conversation";
 
 import {
   ticketPriorityOptions,
@@ -61,13 +49,17 @@ interface TicketManagementDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+function formatDate(date: string) {
+  return new Date(date).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
 export function TicketManagementDialog({
   ticketId,
   onOpenChange,
 }: TicketManagementDialogProps) {
-  const [comment, setComment] = useState("");
-  const [commentError, setCommentError] = useState("");
-
   const { data: ticket, isLoading, isError, error } = useTicket(ticketId);
 
   const { data: currentUser } = useCurrentUser();
@@ -80,7 +72,17 @@ export function TicketManagementDialog({
 
   const updateTicketMutation = useUpdateTicket(ticketId ?? "");
 
-  const addCommentMutation = useAddComment(ticketId ?? "");
+  const moderatorOptions = [
+    {
+      label: "Unassigned",
+      value: "unassigned",
+    },
+
+    ...moderators.map((moderator) => ({
+      label: moderator.name,
+      value: moderator.id,
+    })),
+  ];
 
   const handleAssign = (value: string | null) => {
     if (!value || !ticket) return;
@@ -128,7 +130,7 @@ export function TicketManagementDialog({
         onSuccess: () => {
           toast.add({
             title: "Ticket assigned",
-            description: "The ticket was assigned to you successfully.",
+            description: "The ticket was assigned to you.",
             type: "success",
           });
         },
@@ -151,7 +153,7 @@ export function TicketManagementDialog({
         onSuccess: () => {
           toast.add({
             title: "Status updated",
-            description: "The ticket status was updated successfully.",
+            description: "Ticket status was updated.",
             type: "success",
           });
         },
@@ -174,7 +176,7 @@ export function TicketManagementDialog({
         onSuccess: () => {
           toast.add({
             title: "Priority updated",
-            description: "The ticket priority was updated successfully.",
+            description: "Ticket priority was updated.",
             type: "success",
           });
         },
@@ -182,133 +184,165 @@ export function TicketManagementDialog({
     );
   };
 
-  const handleCommentSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const body = comment.trim();
-
-    if (!body) {
-      setCommentError("Comment cannot be empty.");
-      return;
-    }
-
-    setCommentError("");
-
-    addCommentMutation.mutate(body, {
-      onSuccess: () => {
-        setComment("");
-
-        toast.add({
-          title: "Comment added",
-          description: "Your comment was added successfully.",
-          type: "success",
-        });
-      },
-    });
-  };
-
-  const moderatorOptions = [
-    {
-      label: "Unassigned",
-      value: "unassigned",
-    },
-    ...moderators.map((moderator) => ({
-      label: moderator.name,
-      value: moderator.id,
-    })),
-  ];
-
   return (
-    <Dialog open={!!ticketId} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-3xl">
+    <Sheet open={Boolean(ticketId)} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="
+          top-4
+          right-4
+          bottom-4
+          h-auto
+          overflow-hidden
+          rounded-3xl
+          border
+          bg-background
+          p-0
+          shadow-2xl
+        "
+        style={{
+          width: "min(760px, calc(100vw - 2rem))",
+          maxWidth: "none",
+        }}
+      >
         {isLoading && (
-          <div className="flex min-h-72 items-center justify-center">
+          <div className="flex h-full items-center justify-center">
             <Spinner className="size-7" />
           </div>
         )}
 
         {isError && (
-          <ApiError
-            variant="alert"
-            title="Could not load ticket"
-            error={error}
-          />
+          <div className="p-7">
+            <ApiError
+              variant="alert"
+              title="Could not load ticket"
+              error={error}
+            />
+          </div>
         )}
 
         {ticket && (
-          <>
-            <DialogHeader>
-              <DialogTitle>{ticket.subject}</DialogTitle>
+          <div className="h-full overflow-y-auto divide-y">
+            {/* Header */}
+            <section className="px-7 py-5">
+              <SheetHeader className="!gap-1 !p-0 text-left">
+                <SheetTitle className="pr-10 text-xl font-semibold leading-7">
+                  {ticket.subject}
+                </SheetTitle>
 
-              <DialogDescription>
-                Manage ticket details, assignment and conversation.
-              </DialogDescription>
-            </DialogHeader>
+                <SheetDescription className="text-xs">
+                  {ticket.id}
+                </SheetDescription>
 
-            <div className="flex flex-wrap gap-2">
-              <TicketStatusBadge status={ticket.status} />
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <TicketStatusBadge status={ticket.status} />
 
-              <TicketPriorityBadge priority={ticket.priority} />
-            </div>
+                  <TicketPriorityBadge priority={ticket.priority} />
 
-            <div className="py-4">
+                  <span className="text-xs text-muted-foreground">
+                    {ticket.category.name}
+                  </span>
+                </div>
+              </SheetHeader>
+            </section>
+
+            {/* Progress */}
+            <section className="px-7 py-5">
               <TicketStatusProgress status={ticket.status} />
-            </div>
+            </section>
 
-            <div className="grid gap-4 border-y py-5 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-muted-foreground">Requester</p>
+            {/* Ticket information */}
+            <section className="px-8 py-5">
+              <div className="grid grid-cols-2 gap-x-10 gap-y-5">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Requester
+                  </p>
 
-                <div className="mt-2">
-                  <UserIdentity name={ticket.requester.name} />
+                  <div className="mt-2">
+                    <UserIdentity name={ticket.requester.name} />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Assigned to
+                  </p>
+
+                  <div className="mt-2">
+                    {ticket.assignee ? (
+                      <UserIdentity name={ticket.assignee.name} />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        Unassigned
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Category
+                  </p>
+
+                  <p className="mt-2 text-sm font-medium">
+                    {ticket.category.name}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Created
+                  </p>
+
+                  <p className="mt-2 text-sm">{formatDate(ticket.createdAt)}</p>
                 </div>
               </div>
+            </section>
 
-              <div>
-                <p className="text-xs text-muted-foreground">Category</p>
+            {/* Description */}
+            <section className="px-8 py-5">
+              <h3 className="text-sm font-semibold">Description</h3>
 
-                <p className="mt-1 text-sm font-medium">
-                  {ticket.category.name}
+              <div className="mt-1 rounded-xl bg-muted/40 px-4 py-1">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                  {ticket.description}
                 </p>
               </div>
+            </section>
 
-              <div>
-                <p className="text-xs text-muted-foreground">Assigned to</p>
+            {/* Ticket actions */}
+            <section className="px-8 py-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-semibold">Ticket actions</h3>
 
-                <div className="mt-2">
-                  {ticket.assignee ? (
-                    <UserIdentity name={ticket.assignee.name} />
-                  ) : (
-                    <span className="text-sm text-muted-foreground">
-                      Unassigned
-                    </span>
-                  )}
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Update assignment, status, or priority.
+                  </p>
                 </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={
+                    !currentUser ||
+                    ticket.assignee?.id === currentUser.id ||
+                    updateTicketMutation.isPending
+                  }
+                  onClick={handleAssignToMe}
+                >
+                  Assign to me
+                </Button>
               </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">Created</p>
-
-                <p className="mt-1 text-sm">
-                  {new Date(ticket.createdAt).toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium">Description</h3>
-
-              <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-                {ticket.description}
-              </p>
-            </div>
-
-            <div className="border-t pt-5">
-              <h3 className="font-medium">Ticket actions</h3>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Assignee</label>
+                {/* Assignee */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Assignee
+                  </label>
 
                   <Select
                     items={moderatorOptions}
@@ -320,7 +354,7 @@ export function TicketManagementDialog({
                     }
                     onValueChange={handleAssign}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="h-9 w-full">
                       <SelectValue
                         placeholder={
                           isModeratorsError ? "Unavailable" : "Assignee"
@@ -336,24 +370,13 @@ export function TicketManagementDialog({
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    disabled={
-                      !currentUser ||
-                      ticket.assignee?.id === currentUser.id ||
-                      updateTicketMutation.isPending
-                    }
-                    onClick={handleAssignToMe}
-                  >
-                    Assign to me
-                  </Button>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Status</label>
+                {/* Status */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Status
+                  </label>
 
                   <Select
                     items={ticketStatusOptions}
@@ -361,7 +384,7 @@ export function TicketManagementDialog({
                     disabled={updateTicketMutation.isPending}
                     onValueChange={handleStatusChange}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="h-9 w-full">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -375,8 +398,11 @@ export function TicketManagementDialog({
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Priority</label>
+                {/* Priority */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Priority
+                  </label>
 
                   <Select
                     items={ticketPriorityOptions}
@@ -384,7 +410,7 @@ export function TicketManagementDialog({
                     disabled={updateTicketMutation.isPending}
                     onValueChange={handlePriorityChange}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="h-9 w-full">
                       <SelectValue />
                     </SelectTrigger>
 
@@ -400,8 +426,9 @@ export function TicketManagementDialog({
               </div>
 
               {updateTicketMutation.isPending && (
-                <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                   <Spinner className="size-4" />
+                  Updating ticket...
                 </div>
               )}
 
@@ -415,88 +442,19 @@ export function TicketManagementDialog({
                   className="mt-3"
                 />
               )}
-            </div>
+            </section>
 
-            <div className="border-t pt-5">
-              <h3 className="font-medium">Comments</h3>
-
-              <div className="mt-4 space-y-4">
-                {ticket.comments.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No comments yet.
-                  </p>
-                ) : (
-                  ticket.comments.map((ticketComment) => (
-                    <Message
-                      key={ticketComment.id}
-                      align={
-                        ticketComment.authorId === currentUser?.id
-                          ? "end"
-                          : "start"
-                      }
-                    >
-                      <MessageContent>
-                        <MessageHeader>
-                          {ticketComment.author.name}
-                        </MessageHeader>
-
-                        <Bubble>
-                          <BubbleContent>{ticketComment.body}</BubbleContent>
-                        </Bubble>
-
-                        <MessageFooter>
-                          {new Date(ticketComment.createdAt).toLocaleString()}
-                        </MessageFooter>
-                      </MessageContent>
-                    </Message>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <form onSubmit={handleCommentSubmit} className="border-t pt-5">
-              <label
-                htmlFor="management-comment"
-                className="text-sm font-medium"
-              >
-                Reply
-              </label>
-
-              <Textarea
-                id="management-comment"
-                value={comment}
-                rows={4}
-                placeholder="Write a reply..."
-                className="mt-2"
-                onChange={(event) => {
-                  setComment(event.target.value);
-
-                  if (commentError) {
-                    setCommentError("");
-                  }
-                }}
+            {/* Conversation */}
+            <section className="px-8 py-5">
+              <TicketConversation
+                ticketId={ticket.id}
+                comments={ticket.comments}
+                currentUserId={currentUser?.id}
               />
-
-              {commentError && (
-                <p className="mt-1 text-sm text-destructive">{commentError}</p>
-              )}
-
-              {addCommentMutation.isError && (
-                <ApiError error={addCommentMutation.error} className="mt-2" />
-              )}
-
-              <div className="mt-3 flex justify-end">
-                <Button type="submit" disabled={addCommentMutation.isPending}>
-                  {addCommentMutation.isPending && (
-                    <Spinner className="size-4" />
-                  )}
-                  Reply
-                </Button>
-              </div>
-            </form>
-          </>
+            </section>
+          </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

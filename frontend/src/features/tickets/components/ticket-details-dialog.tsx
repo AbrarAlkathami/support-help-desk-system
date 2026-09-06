@@ -1,226 +1,179 @@
 "use client";
 
-import { useState } from "react";
-import type { SubmitEvent } from "react";
-import { toast } from "@/components/ui/toast";
-import { Spinner } from "@/components/ui/spinner";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Message,
-  MessageContent,
-  MessageHeader,
-  MessageFooter,
-} from "@/components/ui/message";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
+
+import { ApiError } from "@/components/shared/api-error";
+import { UserIdentity } from "@/components/shared/user-identity";
+
 import { useTicket } from "@/features/tickets/hooks/use-ticket";
-import { useAddComment } from "@/features/tickets/hooks/use-add-comment";
+
 import { TicketStatusProgress } from "@/features/tickets/components/ticket-status-progress";
 import { TicketStatusBadge } from "@/features/tickets/components/ticket-status-badge";
 import { TicketPriorityBadge } from "@/features/tickets/components/ticket-priority-badge";
-import { ApiError } from "@/components/shared/api-error";
+import { TicketConversation } from "@/features/tickets/components/ticket-conversation";
+
 interface TicketDetailsDialogProps {
   ticketId: string | null;
   onOpenChange: (open: boolean) => void;
+}
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 export function TicketDetailsDialog({
   ticketId,
   onOpenChange,
 }: TicketDetailsDialogProps) {
-  const [comment, setComment] = useState("");
-  const [commentError, setCommentError] = useState("");
-
   const { data: ticket, isLoading, isError, error } = useTicket(ticketId);
 
-  const addCommentMutation = useAddComment(ticketId ?? "");
-
-  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const body = comment.trim();
-
-    if (!body) {
-      setCommentError("Comment cannot be empty.");
-      return;
-    }
-
-    setCommentError("");
-
-    addCommentMutation.mutate(body, {
-      onSuccess: () => {
-        setComment("");
-
-        toast.add({
-          title: "Comment added",
-          description: "Your comment was added successfully.",
-          type: "success",
-        });
-      },
-    });
-  };
-
   return (
-    <Dialog open={!!ticketId} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+    <Sheet open={Boolean(ticketId)} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="right"
+        className="
+          top-4
+          right-4
+          bottom-4
+          h-auto
+          overflow-hidden
+          rounded-3xl
+          border
+          bg-background
+          p-0
+          shadow-2xl
+        "
+        style={{
+          width: "min(760px, calc(100vw - 2rem))",
+          maxWidth: "none",
+        }}
+      >
         {isLoading && (
-          <div className="flex min-h-60 items-center justify-center">
+          <div className="flex h-full items-center justify-center">
             <Spinner className="size-6" />
           </div>
         )}
 
         {isError && (
-          <ApiError
-            variant="alert"
-            title="Could not load ticket"
-            error={error}
-          />
+          <div className="p-7">
+            <ApiError
+              variant="alert"
+              title="Could not load ticket"
+              error={error}
+            />
+          </div>
         )}
 
         {ticket && (
-          <>
-            <DialogHeader>
-              <DialogTitle>{ticket.subject}</DialogTitle>
+          <div className="h-full divide-y overflow-y-auto">
+            {/* Header */}
+            <section className="px-7 py-5">
+              <SheetHeader className="!gap-1 !p-0 text-left">
+                <SheetTitle className="pr-10 text-xl font-semibold leading-7">
+                  {ticket.subject}
+                </SheetTitle>
 
-              <DialogDescription>
-                Ticket details and comment history
-              </DialogDescription>
-            </DialogHeader>
+                <SheetDescription className="text-xs">
+                  {ticket.id}
+                </SheetDescription>
 
-            <div className="flex flex-wrap gap-2">
-              <TicketStatusBadge status={ticket.status} />
-              <TicketPriorityBadge priority={ticket.priority} />
-            </div>
+                <div className="flex flex-wrap items-center gap-2 pt-2">
+                  <TicketStatusBadge status={ticket.status} />
 
-            <div className="py-4">
+                  <TicketPriorityBadge priority={ticket.priority} />
+
+                  <span className="text-xs text-muted-foreground">
+                    {ticket.category.name}
+                  </span>
+                </div>
+              </SheetHeader>
+            </section>
+
+            {/* Progress */}
+            <section className="px-7 py-5">
               <TicketStatusProgress status={ticket.status} />
-            </div>
+            </section>
 
-            <div className="grid gap-4 border-y py-5 sm:grid-cols-2">
-              <div>
-                <p className="text-xs text-muted-foreground">Category</p>
-
-                <p className="mt-1 text-sm font-medium">
-                  {ticket.category.name}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">Assigned to</p>
-
-                <p className="mt-1 text-sm font-medium">
-                  {ticket.assignee?.name ?? "Unassigned"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">Created</p>
-
-                <p className="mt-1 text-sm">
-                  {new Date(ticket.createdAt).toLocaleString()}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-muted-foreground">Last updated</p>
-
-                <p className="mt-1 text-sm">
-                  {new Date(ticket.updatedAt).toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium">Description</h3>
-
-              <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-                {ticket.description}
-              </p>
-            </div>
-
-            <div className="border-t pt-5">
-              <h3 className="font-medium">Comments</h3>
-
-              <div className="space-y-4">
-                {ticket.comments.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">
-                    No comments yet.
+            {/* Ticket information */}
+            <section className="px-8 py-5">
+              <div className="grid grid-cols-2 gap-x-10 gap-y-5">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Assigned to
                   </p>
-                ) : (
-                  ticket.comments.map((comment) => (
-                    <Message
-                      key={comment.id}
-                      align={
-                        comment.authorId === ticket.requester.id
-                          ? "end"
-                          : "start"
-                      }
-                    >
-                      <MessageContent>
-                        <MessageHeader>{comment.author.name}</MessageHeader>
 
-                        <Bubble>
-                          <BubbleContent>{comment.body}</BubbleContent>
-                        </Bubble>
+                  <div className="mt-2">
+                    {ticket.assignee ? (
+                      <UserIdentity name={ticket.assignee.name} />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        Unassigned
+                      </span>
+                    )}
+                  </div>
+                </div>
 
-                        <MessageFooter>
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </MessageFooter>
-                      </MessageContent>
-                    </Message>
-                  ))
-                )}
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Category
+                  </p>
+
+                  <p className="mt-2 text-sm font-medium">
+                    {ticket.category.name}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Created
+                  </p>
+
+                  <p className="mt-2 text-sm">{formatDate(ticket.createdAt)}</p>
+                </div>
+
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Last updated
+                  </p>
+
+                  <p className="mt-2 text-sm">{formatDate(ticket.updatedAt)}</p>
+                </div>
               </div>
-            </div>
+            </section>
 
-            <form onSubmit={handleSubmit} className="border-t pt-5">
-              <label htmlFor="comment" className="text-sm font-medium">
-                Add a comment
-              </label>
+            {/* Description */}
+            <section className="px-8 py-5">
+              <h3 className="text-sm font-semibold">Description</h3>
 
-              <Textarea
-                id="comment"
-                value={comment}
-                onChange={(event) => {
-                  setComment(event.target.value);
+              <div className="mt-1 rounded-xl bg-muted/40 px-4 py-1">
+                <p className="whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
+                  {ticket.description}
+                </p>
+              </div>
+            </section>
 
-                  if (commentError) {
-                    setCommentError("");
-                  }
-                }}
-                placeholder="Write a comment..."
-                className="mt-2"
-                rows={4}
+            {/* Conversation */}
+            <section className="px-8 py-5">
+              <TicketConversation
+                ticketId={ticket.id}
+                comments={ticket.comments}
+                currentUserId={ticket.requester.id}
               />
-
-              {commentError && (
-                <p className="mt-1 text-sm text-destructive">{commentError}</p>
-              )}
-
-              {addCommentMutation.isError && (
-                <ApiError error={addCommentMutation.error} className="mt-2" />
-              )}
-
-              <div className="mt-3 flex justify-end">
-                <Button type="submit" disabled={addCommentMutation.isPending}>
-                  {addCommentMutation.isPending && (
-                    <Spinner className="size-4" />
-                  )}
-                  Add comment
-                </Button>
-              </div>
-            </form>
-          </>
+            </section>
+          </div>
         )}
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
