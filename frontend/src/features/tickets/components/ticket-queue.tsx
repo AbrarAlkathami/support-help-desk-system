@@ -1,12 +1,9 @@
 "use client";
-
-import { useState } from "react";
-
 import { AppPagination } from "@/components/shared/app-pagination";
 import { TicketEmptyState } from "@/components/shared/ticket-empty-state";
 import { TableSkeleton } from "@/components/shared/table-skeleton";
 import { ApiError } from "@/components/shared/api-error";
-
+import { useTicketUiStore } from "@/features/tickets/stores/use-ticket-ui-store";
 import { Spinner } from "@/components/ui/spinner";
 
 import { useTickets } from "@/features/tickets/hooks/use-tickets";
@@ -60,9 +57,11 @@ export function TicketQueue() {
     sortBy,
     sortOrder,
   });
+  const selectedTicketId = useTicketUiStore((state) => state.selectedTicketId);
 
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const openTicket = useTicketUiStore((state) => state.openTicket);
 
+  const closeTicket = useTicketUiStore((state) => state.closeTicket);
   const tickets = data?.items ?? [];
 
   const totalPages = Math.ceil((data?.total ?? 0) / pageSize);
@@ -155,10 +154,7 @@ export function TicketQueue() {
           emptyDescription="There are currently no support tickets in the queue."
         />
       ) : (
-        <QueueTicketTable
-          tickets={tickets}
-          onTicketClick={setSelectedTicketId}
-        />
+        <QueueTicketTable tickets={tickets} onTicketClick={openTicket} />
       )}
 
       <AppPagination
@@ -182,7 +178,7 @@ export function TicketQueue() {
         ticketId={selectedTicketId}
         onOpenChange={(open) => {
           if (!open) {
-            setSelectedTicketId(null);
+            closeTicket();
           }
         }}
       />

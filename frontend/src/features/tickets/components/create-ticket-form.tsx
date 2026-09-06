@@ -1,8 +1,7 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,8 +34,8 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
+    control,
     formState: { errors },
   } = useForm<CreateTicketFormValues>({
     resolver: zodResolver(createTicketSchema),
@@ -55,7 +54,10 @@ export function CreateTicketForm({ onSuccess }: CreateTicketFormProps) {
 
   const createTicketMutation = useCreateTicket();
 
-  const categoryId = watch("categoryId");
+  const categoryId = useWatch({
+    control,
+    name: "categoryId",
+  });
 
   const onSubmit = (data: CreateTicketFormValues) => {
     createTicketMutation.mutate(data, {

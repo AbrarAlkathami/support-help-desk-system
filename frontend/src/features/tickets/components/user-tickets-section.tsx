@@ -8,7 +8,7 @@ import { UserTicketFilters } from "@/features/tickets/components/user-ticket-fil
 import { TicketDetailsDialog } from "@/features/tickets/components/ticket-details-dialog";
 
 import { useTickets } from "@/features/tickets/hooks/use-tickets";
-
+import { useTicketUiStore } from "@/features/tickets/stores/use-ticket-ui-store";
 import type { TicketStatus } from "@/features/tickets/types/ticket";
 
 import { AppPagination } from "@/components/shared/app-pagination";
@@ -34,8 +34,11 @@ function UserTicketsSection() {
 
   const status = statusParam ? (statusParam as TicketStatus) : undefined;
 
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const selectedTicketId = useTicketUiStore((state) => state.selectedTicketId);
 
+  const openTicket = useTicketUiStore((state) => state.openTicket);
+
+  const closeTicket = useTicketUiStore((state) => state.closeTicket);
   const [searchInput, setSearchInput] = useState(search);
 
   const { data, isLoading, isError, isFetching, error } = useTickets({
@@ -143,7 +146,7 @@ function UserTicketsSection() {
         <div className="mt-6">
           <UserTicketTable
             tickets={data?.items ?? []}
-            onTicketClick={setSelectedTicketId}
+            onTicketClick={openTicket}
           />
         </div>
       )}
@@ -169,7 +172,7 @@ function UserTicketsSection() {
         ticketId={selectedTicketId}
         onOpenChange={(open) => {
           if (!open) {
-            setSelectedTicketId(null);
+            closeTicket();
           }
         }}
       />

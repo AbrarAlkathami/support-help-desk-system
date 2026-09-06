@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,11 @@ export function CreateUserDialog() {
       password: "",
       role: "user",
     },
+  });
+
+  const role = useWatch({
+    control: form.control,
+    name: "role",
   });
 
   const onSubmit = (data: CreateUserFormValues) => {
@@ -156,7 +161,7 @@ export function CreateUserDialog() {
 
             <Select
               items={roleOptions}
-              value={form.watch("role")}
+              value={role}
               onValueChange={(value) => {
                 if (!value) return;
 
