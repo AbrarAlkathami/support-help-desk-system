@@ -70,7 +70,7 @@ export function CreateCategoryDialog() {
         render={
           <Button>
             <Plus className="size-4" />
-            Add category
+            New category
           </Button>
         }
       />

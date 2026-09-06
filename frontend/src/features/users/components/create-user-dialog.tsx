@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,7 +81,10 @@ export function CreateUserDialog() {
       }}
     >
       {" "}
-      <DialogTrigger render={<Button />}>Create account</DialogTrigger>
+      <DialogTrigger render={<Button />}>
+        <Plus className="size-4" />
+        New account
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create account</DialogTitle>
@@ -176,7 +180,8 @@ export function CreateUserDialog() {
           <div className="flex justify-end">
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending && <Spinner className="size-4" />}
-              Create account
+              <Plus className="size-4" />
+              Add account
             </Button>
           </div>
         </form>

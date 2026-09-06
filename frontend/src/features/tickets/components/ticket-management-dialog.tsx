@@ -38,7 +38,7 @@ import {
   ticketPriorityOptions,
   ticketStatusOptions,
 } from "@/features/tickets/constants/ticket-filter-options";
-
+import { useDeleteTicket } from "@/features/tickets/hooks/use-delete-ticket";
 import type {
   TicketPriority,
   TicketStatus,
@@ -71,7 +71,7 @@ export function TicketManagementDialog({
   } = useModerators();
 
   const updateTicketMutation = useUpdateTicket(ticketId ?? "");
-
+  const deleteTicketMutation = useDeleteTicket();
   const moderatorOptions = [
     {
       label: "Unassigned",
@@ -115,8 +115,32 @@ export function TicketManagementDialog({
     );
   };
 
+  const handleCloseTicket = () => {
+    if (
+      !ticket ||
+      currentUser?.role !== "admin" ||
+      ticket.status === "closed"
+    ) {
+      return;
+    }
+
+    deleteTicketMutation.mutate(ticket.id, {
+      onSuccess: () => {
+        toast.add({
+          title: "Ticket closed",
+          description: "The ticket was closed successfully.",
+          type: "success",
+        });
+
+        onOpenChange(false);
+      },
+    });
+  };
+
   const handleAssignToMe = () => {
     if (!currentUser || !ticket) return;
+
+    if (currentUser.role !== "moderator") return;
 
     if (ticket.assignee?.id === currentUser.id) {
       return;
@@ -322,19 +346,40 @@ export function TicketManagementDialog({
                   </p>
                 </div>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={
-                    !currentUser ||
-                    ticket.assignee?.id === currentUser.id ||
-                    updateTicketMutation.isPending
-                  }
-                  onClick={handleAssignToMe}
-                >
-                  Assign to me
-                </Button>
+                {currentUser?.role === "moderator" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={
+                      ticket.assignee?.id === currentUser.id ||
+                      updateTicketMutation.isPending
+                    }
+                    onClick={handleAssignToMe}
+                  >
+                    Assign to me
+                  </Button>
+                )}
+                {currentUser?.role === "admin" && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    disabled={
+                      ticket.status === "closed" ||
+                      deleteTicketMutation.isPending
+                    }
+                    onClick={handleCloseTicket}
+                  >
+                    {deleteTicketMutation.isPending && (
+                      <Spinner className="size-4" />
+                    )}
+
+                    {ticket.status === "closed"
+                      ? "Ticket closed"
+                      : "Close ticket"}
+                  </Button>
+                )}
               </div>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -434,6 +479,9 @@ export function TicketManagementDialog({
 
               {updateTicketMutation.isError && (
                 <ApiError error={updateTicketMutation.error} className="mt-3" />
+              )}
+              {deleteTicketMutation.isError && (
+                <ApiError error={deleteTicketMutation.error} className="mt-3" />
               )}
 
               {isModeratorsError && (

@@ -31,8 +31,6 @@ import { useUpdateUser } from "@/features/users/hooks/use-update-user";
 
 import type { UserRole } from "@/features/users/types/user";
 
-import { CreateUserDialog } from "@/features/users/components/create-user-dialog";
-
 const roleOptions: {
   label: string;
   value: UserRole;
@@ -120,11 +118,6 @@ export function UsersManagement() {
 
   return (
     <div className="space-y-4">
-      {/* Temporary until we move CTA beside tabs */}
-      <div className="flex justify-end">
-        <CreateUserDialog />
-      </div>
-
       {mutation.isError && <ApiError error={mutation.error} />}
 
       <div className="overflow-x-auto rounded-xl border bg-card">

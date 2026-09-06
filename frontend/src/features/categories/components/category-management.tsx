@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/table";
 
 import { useCategories } from "@/features/categories/hooks/use-categories";
-import { CreateCategoryDialog } from "./create-category-dialog";
 import { useMetrics } from "@/features/metrics/hooks/use-metrics";
 
 export function CategoryManagement() {
@@ -63,18 +62,6 @@ export function CategoryManagement() {
     0;
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-semibold">Categories</h2>
-
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage the categories available when creating support tickets.
-          </p>
-        </div>
-
-        <CreateCategoryDialog />
-      </div>
-
       {categories.length === 0 ? (
         <div className="rounded-xl border border-dashed px-6 py-12 text-center">
           <p className="font-medium">No categories yet</p>
